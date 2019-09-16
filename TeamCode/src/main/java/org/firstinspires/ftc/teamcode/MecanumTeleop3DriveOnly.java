@@ -7,55 +7,32 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import legacy.MecanumHardware3;
 
 
-@TeleOp(name="MecanumTeleop3", group="MecanumBot3")
+@TeleOp(name="MecanumTeleop3DriveOnly", group="MecanumBot3")
 //@Disabled
 
 public class MecanumTeleop3DriveOnly extends OpMode {
 
     MecanumHardware3DriveOnly robot = new MecanumHardware3DriveOnly();
-    ElapsedTime runtime = new ElapsedTime();
 
-    static final double COUNTS_PER_MOTOR_REV = 1120;    // eg: TETRIX Motor Encoder
-    static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
-    static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
-    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
-    static final double DRIVE_SPEED = 0.6;
-    static final double TURN_SPEED = 0.5;
-
-    private float pLim = 1f; //power multiplier that acts as a limit
     private float drive = .8f;
-    private float tHold = .1f; //lowest threshold for it to register
-    private float pSlow = .2f;
-    private float pSlowSlow = .1f;
-
-    //boolean intakeFor = false;
-    boolean intakeOld = true;
-    boolean intakeNew = false;
-    boolean PowerOn=true;
-
-    boolean intakeOld1 = true;
-    boolean intakeNew1 = false;
-    boolean PowerOn1 = true;
-    int armFlipRef = 0;//TODO: FIND VALUE
-    int count = 0;
 
     @Override
-    public void init() {
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
+    public void init()
+    {
+        //Initialize the hardware variables.
+        //The init() method of the hardware class does all the work here
         robot.init(hardwareMap);
-        //robot.intake.setPower(0);
-        //robot.armFlip.setPower(0);
     }
 
     @Override
-    public void loop() {
+    public void loop()
+    {
 
         mecanumMove();
     }
 
-    public void mecanumMove() {
+    public void mecanumMove()
+    {
         //variables
         double r = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
         double robotAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) - Math.PI / 4;
@@ -69,39 +46,5 @@ public class MecanumTeleop3DriveOnly extends OpMode {
         robot.fRMotor.setPower(-drive * v2);
         robot.bLMotor.setPower(-drive * v3);
         robot.bRMotor.setPower(-drive * v4);
-
-
-    /*public void encoderMove(DcMotor motor, double inches, double timeoutS, int ref, float power) {
-        // Determine new target position, and pass to motor controller
-        int target = ref + (int) (inches * COUNTS_PER_INCH);
-        motor.setTargetPosition(target);
-
-        // Turn On RUN_TO_POSITION
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // reset the timeout time and start motion.
-        runtime.reset();
-        motor.setPower(power);
-
-        // keep looping while we are still active, and there is time left, and both motors are running.
-        // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-        // its target position, the motion will stop.  This is "safer" in the event that the robot will
-        // always end the motion as soon as possible.
-        // However, if you require that BOTH motors have finished their moves before the robot continues
-        // onto the next step, use (isBusy() || isBusy()) in the loop test.
-        while ((runtime.seconds() <= timeoutS) && robot.armFlip.isBusy()) {
-
-            // Display it for the driver.
-            telemetry.addData("Path1", "Running to %7d", target);
-            telemetry.addData("Path2", "Running at %7d", motor.getCurrentPosition());
-            telemetry.update();
-        }
-
-        // Stop all motion;
-        motor.setPower(0);
-
-        // Turn off RUN_TO_POSITION
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }*/
     }
 }
