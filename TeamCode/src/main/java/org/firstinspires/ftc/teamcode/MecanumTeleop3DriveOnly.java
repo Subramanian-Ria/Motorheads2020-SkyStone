@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import legacy.MecanumHardware3;
 
 
@@ -29,6 +31,23 @@ public class MecanumTeleop3DriveOnly extends OpMode {
     {
 
         mecanumMove();
+        //telemetry.addData("Alpha", robot.sensorColor.alpha());
+        //telemetry.addData("Red  ", robot.sensorColor.red());
+        //telemetry.addData("Green", robot.sensorColor.green());
+        //telemetry.addData("Blue ", robot.sensorColor.blue());
+        //telemetry.addData("Distance Sensor", robot.distSen.getDistance(DistanceUnit.INCH));
+        if(gamepad1.a)
+        {
+            robot.servo1.setPosition(0);
+            robot.servo2.setPosition(1);
+        }
+        if(gamepad1.b)
+        {
+            robot.servo1.setPosition(1);
+            robot.servo2.setPosition(0);
+        }
+
+        telemetry.update();
     }
 
     public void mecanumMove()

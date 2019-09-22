@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,6 +13,11 @@ public class MecanumHardware3DriveOnly
     public DcMotor fRMotor;
     public DcMotor bLMotor;
     public DcMotor bRMotor;
+
+    //public DistanceSensor distSen;
+    public Servo servo1;
+    public Servo servo2;
+    //public ColorSensor sensorColor;
 
     //declaring values for use with encoders
     static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // AndyMark Motor Encoder
@@ -35,6 +41,11 @@ public class MecanumHardware3DriveOnly
         fRMotor = hwMap.get(DcMotor.class, "fRMotor");
         bRMotor = hwMap.get(DcMotor.class, "bRMotor");
         bLMotor = hwMap.get(DcMotor.class, "bLMotor");
+
+        //distSen = hwMap.get(DistanceSensor.class, "distSen");
+        //sensorColor = hwMap.get(ColorSensor.class, "sensorColor");
+        servo1 = hwMap.get(Servo.class, "servo1");
+        servo2 = hwMap.get(Servo.class, "servo2");
 
         fLMotor.setPower(0);
         bLMotor.setPower(0);
