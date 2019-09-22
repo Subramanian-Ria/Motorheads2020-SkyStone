@@ -31,12 +31,13 @@ public class MecanumTeleop3DriveOnly extends OpMode {
     {
 
         mecanumMove();
-        //telemetry.addData("Alpha", robot.sensorColor.alpha());
-        //telemetry.addData("Red  ", robot.sensorColor.red());
-        //telemetry.addData("Green", robot.sensorColor.green());
-        //telemetry.addData("Blue ", robot.sensorColor.blue());
+        robot.sensorColor.enableLed(false);
+        telemetry.addData("Alpha", robot.sensorColor.alpha());
+        telemetry.addData("Red  ", robot.sensorColor.red());
+        telemetry.addData("Green", robot.sensorColor.green());
+        telemetry.addData("Blue ", robot.sensorColor.blue());
         //telemetry.addData("Distance Sensor", robot.distSen.getDistance(DistanceUnit.INCH));
-        if(gamepad1.a)
+        /*if(gamepad1.a)
         {
             robot.servo1.setPosition(0);
             robot.servo2.setPosition(1);
@@ -45,7 +46,7 @@ public class MecanumTeleop3DriveOnly extends OpMode {
         {
             robot.servo1.setPosition(1);
             robot.servo2.setPosition(0);
-        }
+        }*/
 
         telemetry.update();
     }
