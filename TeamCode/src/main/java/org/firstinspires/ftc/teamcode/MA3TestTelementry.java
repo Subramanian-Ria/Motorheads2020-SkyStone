@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class MA3TestTelementry extends OpMode {
 
     MA3TestHardware robot = new MA3TestHardware();
+    private final double Cir = 4 * Math.PI;
     private double rotations = 0;
     private int rotationCount = 0;
     int positiveDirection = 0;
@@ -39,6 +40,22 @@ public class MA3TestTelementry extends OpMode {
     @Override
     public void loop()
     {
+//        if(robot.MA3.getVoltage() > startingVoltage - .05 && robot.MA3.getVoltage() < startingVoltage + .05 && !(robot.MA3.getVoltage() == startingVoltage))
+//        {
+//            rotations++;
+//        }
+//        else
+//        {
+//            rotations += (robot.MA3.getVoltage() - lastVoltage) / 5;
+//        }
+//        if(runtime.milliseconds() >= 250)
+//        {
+//            velocity = (currentPosition - lastPosition)/runtime.milliseconds() * 1000;
+//            distance = rotations * Cir;
+//            lastVoltage = robot.MA3.getVoltage();
+//            runtime.reset();
+//        }
+
         if(robot.MA3.getVoltage() - lastVoltage > 4.85)
         {
             positiveDirection = -1;
@@ -120,6 +137,5 @@ public class MA3TestTelementry extends OpMode {
         lastVoltage = robot.MA3.getVoltage();
         //rotations = 0;
     }
-
 
 }
