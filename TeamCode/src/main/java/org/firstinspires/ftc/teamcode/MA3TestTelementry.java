@@ -11,13 +11,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class MA3TestTelementry extends OpMode {
 
     MA3TestHardware robot = new MA3TestHardware();
-    private double rotationCount = 0;
-    boolean rotated = false;
+    private double rotations = 0;
+    private int rotationCount = 0;
+    int positiveDirection = 0;
     private ElapsedTime runtime = new ElapsedTime();
     private double lastVoltage = 0;
+    private double startingVoltage = 0;
     private double lastPosition = 0;
     private  double currentPosition = 0;
     private double velocity = 0;
+    private int count = 0;
+    private double distance = 0;
 
 
     @Override
@@ -27,22 +31,59 @@ public class MA3TestTelementry extends OpMode {
         //The init() method of the hardware class does all the work here
         robot.init(hardwareMap);
         runtime.reset();
+        //robot.MA3.resetDeviceConfigurationForOpMode();
+        startingVoltage = robot.MA3.getVoltage();
+        lastVoltage = startingVoltage;
     }
 
     @Override
     public void loop()
     {
-        if(Math.abs(robot.MA3.getVoltage() - lastVoltage) > .2)
+        if(robot.MA3.getVoltage() - lastVoltage > 4.85)
         {
-            rotationCount+=Math.abs(robot.MA3.getVoltage()-lastVoltage)/5;
-            lastVoltage = robot.MA3.getVoltage();
+            positiveDirection = -1;
         }
-        if(runtime.milliseconds() >= 250)
+        else if(robot.MA3.getVoltage() - lastVoltage > 0)
         {
-            currentPosition = rotationCount * 4 * Math.PI;
-            velocity = (currentPosition - lastPosition)/runtime.milliseconds() * 1000;
-            lastPosition = currentPosition;
-            runtime.reset();
+            positiveDirection = 1;
+        }
+        else if(robot.MA3.getVoltage() - lastVoltage < -4.85)
+        {
+            positiveDirection = 1;
+        }
+        else if(robot.MA3.getVoltage() - lastVoltage < 0)
+        {
+            positiveDirection = -1;
+        }
+        else
+        {
+            positiveDirection = 0;
+        }
+//        if(Math.abs(robot.MA3.getVoltage() - startingVoltage) > 4.95 || Math.abs(robot.MA3.getVoltage() - startingVoltage) < .05)
+//        {
+//            rotationCount++;
+//        }
+        if(positiveDirection == 1)
+        {
+            if(robot.MA3.getVoltage() < startingVoltage)
+            {
+                rotations = rotationCount + (5 - Math.abs(robot.MA3.getVoltage() - startingVoltage));
+            }
+            else
+            {
+                rotations = rotationCount + robot.MA3.getVoltage()-startingVoltage;
+            }
+        }
+        else
+        {
+            if(robot.MA3.getVoltage() > startingVoltage)
+            {
+                rotations = rotationCount + (5 - Math.abs(robot.MA3.getVoltage() - startingVoltage));
+            }
+            else
+            {
+                rotations = Math.abs(rotationCount + robot.MA3.getVoltage()-startingVoltage);
+            }
         }
         /*if((robot.MA3.getVoltage() > robot.MA3.getMaxVoltage() - .1 || robot.MA3.getVoltage() < .1) && rotated == false)
         {
@@ -53,18 +94,31 @@ public class MA3TestTelementry extends OpMode {
         {
             rotated = false;
         }*/
-        /*if(runtime.milliseconds() == 250)
+        //rotations = rotationCount + robot.MA3.getVoltage()/5;
+        /*if(count == 0)
         {
-            currentPosition = rotationCount * 4 * Math.PI;
-            velocity = (currentPosition - lastPosition)/runtime.milliseconds();
+            rotations = count;
+            count++;
+        }*/
+        if(runtime.milliseconds() >= 250)
+        {
+            currentPosition = rotations * 4 * Math.PI;
+            velocity = (currentPosition - lastPosition)/runtime.milliseconds() * 1000;
             lastPosition = currentPosition;
             runtime.reset();
-        }*/
+        }
+        distance = rotations * 4 * Math.PI;
+
+        telemetry.addData("starting Voltage", startingVoltage);
+        telemetry.addData("Positive Direction", positiveDirection);
         telemetry.addData("MA3", robot.MA3.getVoltage());
-        //telemetry.addData("rotated", rotated);
-        telemetry.addData("Rotations", rotationCount);
+        telemetry.addData("Dist", distance);
+        telemetry.addData("Rotations", rotations);
+        telemetry.addData("Rotation Count", rotationCount);
         telemetry.addData("Velocity (in/s)", velocity);
         telemetry.update();
+        lastVoltage = robot.MA3.getVoltage();
+        //rotations = 0;
     }
 
 
