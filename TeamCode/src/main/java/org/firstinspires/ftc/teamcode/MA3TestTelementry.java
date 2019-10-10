@@ -11,19 +11,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class MA3TestTelementry extends OpMode {
 
     MA3TestHardware robot = new MA3TestHardware();
-    private final double Cir = 4 * Math.PI;
-    private double rotations = 0;
-    private int rotationCount = 0;
-    int positiveDirection = 0;
     private ElapsedTime runtime = new ElapsedTime();
-    private double lastVoltage = 0;
-    private double startingVoltage = 0;
-    private double lastPosition = 0;
-    private  double currentPosition = 0;
-    private double velocity = 0;
-    private int count = 0;
-    private double distance = 0;
-
+    private final double diameter = 4;
+    private final double circ = diameter * Math.PI;
+    private final double threshold = .2;
 
     @Override
     public void init()
@@ -33,8 +24,6 @@ public class MA3TestTelementry extends OpMode {
         robot.init(hardwareMap);
         runtime.reset();
         //robot.MA3.resetDeviceConfigurationForOpMode();
-        startingVoltage = robot.MA3.getVoltage();
-        lastVoltage = startingVoltage;
     }
 
     @Override
@@ -55,8 +44,36 @@ public class MA3TestTelementry extends OpMode {
 //            lastVoltage = robot.MA3.getVoltage();
 //            runtime.reset();
 //        }
+         getRotations(1, 5);
+        /*if(index < 4)
+        {
+            voltages[index] = robot.MA3.getVoltage();
 
-        if(robot.MA3.getVoltage() - lastVoltage > 4.85)
+            index++;
+        }
+        else
+        {
+            index = 0;
+            voltages[index] = robot.MA3.getVoltage();
+            index++;
+        }
+        voltageChange = Math.abs(currentVoltage - lastVoltage);
+        if(voltageChange >= threshold)
+        {
+            rotations += voltageChange/5;
+            dist = (voltageChange/5)*circ;
+            totalDist += dist;
+        }
+        if(runtime.milliseconds() >= 250)
+        {
+            velocity = totalDist - lastDistV;
+            lastDistV = totalDist;
+            runtime.reset();
+        }
+
+
+        /*if(Math.abs(robot.MA3.getVoltage() - lastVoltage) > .2)
+>>>>>>> a5dd110e34879675463c8f07e581d8316454dad0
         {
             positiveDirection = -1;
         }
@@ -117,25 +134,47 @@ public class MA3TestTelementry extends OpMode {
             rotations = count;
             count++;
         }*/
-        if(runtime.milliseconds() >= 250)
-        {
-            currentPosition = rotations * 4 * Math.PI;
-            velocity = (currentPosition - lastPosition)/runtime.milliseconds() * 1000;
-            lastPosition = currentPosition;
-            runtime.reset();
-        }
-        distance = rotations * 4 * Math.PI;
-
-        telemetry.addData("starting Voltage", startingVoltage);
-        telemetry.addData("Positive Direction", positiveDirection);
-        telemetry.addData("MA3", robot.MA3.getVoltage());
-        telemetry.addData("Dist", distance);
-        telemetry.addData("Rotations", rotations);
-        telemetry.addData("Rotation Count", rotationCount);
-        telemetry.addData("Velocity (in/s)", velocity);
-        telemetry.update();
-        lastVoltage = robot.MA3.getVoltage();
-        //rotations = 0;
+//        telemetry.addData("MA3", robot.MA3.getVoltage());
+//        telemetry.addData("Rotations", rotations);
+//        telemetry.addData("Total Distance", totalDist);
+//        telemetry.addData("Velocity (in/s)", velocity);
+        /*telemetry.update();
+        lastVoltage = robot.MA3.getVoltage();*/
     }
-
+    public void getRotations(int dir, double endDistIn)
+    {
+        double totalDist = 0;
+        double lastVolt = 0;
+        double currentVolt;
+        double changeVolt;
+        while(totalDist < endDistIn)
+        {
+            currentVolt = robot.MA3.getVoltage();
+            changeVolt = currentVolt - lastVolt;
+            if(Math.abs(changeVolt) > threshold)
+            {
+                if(dir > 0)
+                {
+                    if(changeVolt < 0)
+                    {
+                        changeVolt += 5;
+                    }
+                    totalDist += (changeVolt/5)*circ;
+                }
+                else
+                {
+                    if(changeVolt > 0)
+                    {
+                        changeVolt-=5;
+                    }
+                    totalDist += Math.abs(changeVolt/5)*circ;
+                }
+            }
+            lastVolt = currentVolt;
+            telemetry.addData("Total Distance", totalDist);
+            telemetry.addData("MA3", robot.MA3.getVoltage());
+            telemetry.addData("Rotations", totalDist/circ);
+            telemetry.update();
+        }
+    }
 }
