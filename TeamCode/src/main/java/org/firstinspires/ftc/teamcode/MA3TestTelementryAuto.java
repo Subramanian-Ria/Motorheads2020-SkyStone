@@ -53,8 +53,20 @@ public class MA3TestTelementryAuto extends LinearOpMode {
     {
         robot.init(hardwareMap);
 
+        robot.fLMotor.setDirection(DcMotor.Direction.FORWARD);
+        robot.fRMotor.setDirection(DcMotor.Direction.REVERSE);
+        robot.bLMotor.setDirection(DcMotor.Direction.FORWARD);
+        robot.bRMotor.setDirection(DcMotor.Direction.REVERSE);
         waitForStart();
+        robot.fLMotor.setPower(.5);
+        robot.fRMotor.setPower(.5);
+        robot.bLMotor.setPower(.5);
+        robot.bRMotor.setPower(.5);
         getRotations(circ*5, 15);
+        robot.fLMotor.setPower(0);
+        robot.fRMotor.setPower(0);
+        robot.bLMotor.setPower(0);
+        robot.bRMotor.setPower(0);
         telemetry.addData("Path", "Complete");
         sleep(500);
     }
