@@ -36,6 +36,11 @@ public class MA3TestHardware
         fRMotor = hwMap.get(DcMotor.class, "fRMotor");
         bLMotor = hwMap.get(DcMotor.class, "bLMotor");
         bRMotor = hwMap.get(DcMotor.class, "bRMotor");
+
+        fLMotor.setDirection(DcMotor.Direction.FORWARD);
+        fRMotor.setDirection(DcMotor.Direction.REVERSE);
+        bLMotor.setDirection(DcMotor.Direction.FORWARD);
+        bRMotor.setDirection(DcMotor.Direction.REVERSE);
         //servo1 = hwMap.get(Servo.class, "servo1");
         //servo2 = hwMap.get(Servo.class, "servo2");
     }

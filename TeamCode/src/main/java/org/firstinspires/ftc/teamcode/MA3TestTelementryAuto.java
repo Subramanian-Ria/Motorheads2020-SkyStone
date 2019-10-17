@@ -53,24 +53,37 @@ public class MA3TestTelementryAuto extends LinearOpMode {
     {
         robot.init(hardwareMap);
 
-        robot.fLMotor.setDirection(DcMotor.Direction.FORWARD);
-        robot.fRMotor.setDirection(DcMotor.Direction.REVERSE);
-        robot.bLMotor.setDirection(DcMotor.Direction.FORWARD);
-        robot.bRMotor.setDirection(DcMotor.Direction.REVERSE);
+
         waitForStart();
-        robot.fLMotor.setPower(.5);
-        robot.fRMotor.setPower(.5);
-        robot.bLMotor.setPower(.5);
-        robot.bRMotor.setPower(.5);
-        getRotations(circ*5, 15);
-        robot.fLMotor.setPower(0);
-        robot.fRMotor.setPower(0);
-        robot.bLMotor.setPower(0);
-        robot.bRMotor.setPower(0);
+//        getRotations(30, 15) ;
+//        sleep(2000);
+        getRotations(20, 15);
+        sleep(2000);
+        getRotations(20, 15);
+        sleep(2000);
         telemetry.addData("Path", "Complete");
+        telemetry.update();
         sleep(500);
+        /*setPower(.5);
+        while (runtime.milliseconds() < 1000)
+        {
+
+        }
+        //setPower(.5);
+       /* while(robot.MA3.getVoltage() <= 5)
+        {
+         setPower(.5);
+        }
+        setPower(0);*/
     }
 
+    public void setPower(double power)
+    {
+        robot.fLMotor.setPower(power);
+        robot.bLMotor.setPower(power);
+        robot.fRMotor.setPower(power);
+        robot.bRMotor.setPower(power);
+    }
     public void getRotations(double endDistIn, double timeoutS)
     {
         if(opModeIsActive())
@@ -80,6 +93,8 @@ public class MA3TestTelementryAuto extends LinearOpMode {
             double lastVolt = 0;
             double currentVolt;
             double changeVolt;
+            double totalVolt = 0;
+            setPower(.5);
             while(totalDist < endDistIn && opModeIsActive() && runtime.seconds() < timeoutS)
             {
                 currentVolt = robot.MA3.getVoltage();
@@ -90,17 +105,21 @@ public class MA3TestTelementryAuto extends LinearOpMode {
                     {
                         changeVolt += 5;
                     }
+                    totalVolt += changeVolt;
                     totalDist += (changeVolt/5)*circ;
+                    lastVolt = currentVolt;
                 }
-                lastVolt = currentVolt;
                 telemetry.addData("MA3", currentVolt);
                 telemetry.addData("Time", runtime.seconds());
                 telemetry.addData("Change Volt", changeVolt);
+                telemetry.addData("Total Voltage", totalVolt);
+                telemetry.addData("rev based on voltage", totalVolt/5);
                 telemetry.addData("Total Distance", totalDist);
                 telemetry.addData("Remaining Distance", endDistIn - totalDist);
                 telemetry.addData("Rotations", totalDist/circ);
                 telemetry.update();
             }
+            setPower(0);
         }
     }
 
