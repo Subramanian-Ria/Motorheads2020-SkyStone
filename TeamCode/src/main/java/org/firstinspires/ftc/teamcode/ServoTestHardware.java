@@ -9,8 +9,8 @@ public class ServoTestHardware
 {
 
     //public DistanceSensor distSen;
-    public Servo servo1;
-    public Servo servo2;
+    public DcMotor susanTest;
+   // public Servo servo2;
 
     //declaring values for use with encoders
     static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // AndyMark Motor Encoder
@@ -30,8 +30,8 @@ public class ServoTestHardware
         hwMap = ahwMap;
 
         // Define Motors
-        servo1 = hwMap.get(Servo.class, "servo1");
-        servo2 = hwMap.get(Servo.class, "servo2");
+        susanTest = hwMap.get(DcMotor.class, "servo1");
+        //servo2 = hwMap.get(Servo.class, "servo2");
 
     }
 }

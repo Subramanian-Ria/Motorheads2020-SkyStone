@@ -57,10 +57,10 @@ public class MA3TestTelementryAuto extends LinearOpMode {
         waitForStart();
 //        getRotations(30, 15) ;
 //        sleep(2000);
-        getRotations(20, 15);
+        getRotations(60, 15);
         sleep(2000);
-        getRotations(20, 15);
-        sleep(2000);
+//        getRotations(20, 15);
+//        sleep(2000);
         telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(500);

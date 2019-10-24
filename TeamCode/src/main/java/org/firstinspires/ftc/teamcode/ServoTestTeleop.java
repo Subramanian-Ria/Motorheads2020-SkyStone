@@ -24,16 +24,44 @@ public class ServoTestTeleop extends OpMode {
     @Override
     public void loop()
     {
-
-        if(gamepad1.a)
-        {
-            robot.servo1.setPosition(.5);
-            robot.servo2.setPosition(0.5);
-        }
         if(gamepad1.b)
         {
-            robot.servo1.setPosition(0);
-            robot.servo2.setPosition(1);
+            if(robot.susanTest.getPower() != 0)
+            {
+                double inc = -(robot.susanTest.getPower()/200);
+                for(int i = 0; i < 200; i++)
+                {
+                    robot.susanTest.setPower(robot.susanTest.getPower() + inc);
+                }
+            }
+            //robot.susanTest.setPower(0);
+           // robot.servo2.setPosition(1);
+        }
+        if(gamepad1.x)
+        {
+            if(robot.susanTest.getPower() != .45)
+            {
+                double inc = (.45 - robot.susanTest.getPower())/200;
+                for(int i = 0; i < 200; i++)
+                {
+                    robot.susanTest.setPower(robot.susanTest.getPower() + inc);
+                }
+            }
+            //robot.susanTest.setPower(.45);
+            //robot.servo2.setPosition(0.5);
+        }
+        if(gamepad1.y)
+        {
+            if(robot.susanTest.getPower() != -.45)
+            {
+                double inc = (-.45 - robot.susanTest.getPower())/200;
+                for(int i = 0; i < 200; i++)
+                {
+                    robot.susanTest.setPower(robot.susanTest.getPower() + inc);
+                }
+            }
+            //robot.susanTest.setPower(-.45);
+            // robot.servo2.setPosition(1);
         }
     }
 
