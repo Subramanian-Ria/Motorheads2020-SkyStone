@@ -33,7 +33,8 @@ public class LightSensorBarTest extends OpMode {
         telemetry.addData("sen2", robot.sen2.alpha());
         telemetry.addData("sen3", robot.sen3.alpha());
         telemetry.addData("dist", robot.dist.getDistance(DistanceUnit.INCH));//if the distance is < .5in then the stone is too close despite being skystone
-        //and if a nonskystone is more than 5.5in away it needs to be brought closer - if stone is really close then skystone reading are lower across the board than regular stone
+        //and if a nonskystone is more than 5.5in away it needs to be brought closer
+        // if stone is really close then skystone reading are lower across the board than regular stone
         double average = robot.sen1.alpha()+ robot.sen3.alpha() + robot.sen2.alpha();
         boolean isSkystone = false;
         average/=3;
