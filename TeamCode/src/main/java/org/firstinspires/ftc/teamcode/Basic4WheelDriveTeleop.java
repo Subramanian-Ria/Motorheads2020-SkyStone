@@ -26,10 +26,10 @@ public class Basic4WheelDriveTeleop extends OpMode {
 
         if(Math.abs(gamepad1.right_stick_x) > .1)
         {
-            robot.FLTest.setPower(gamepad1.right_stick_x);
-            robot.FRTest.setPower(-gamepad1.right_stick_x);
-            robot.BLTest.setPower(gamepad1.right_stick_x);
-            robot.BRTest.setPower(-gamepad1.right_stick_x);
+            robot.FLTest.setPower(-gamepad1.right_stick_x);
+            robot.FRTest.setPower(gamepad1.right_stick_x);
+            robot.BLTest.setPower(-gamepad1.right_stick_x);
+            robot.BRTest.setPower(gamepad1.right_stick_x);
         }
         else if(Math.abs(gamepad1.left_stick_y) > .1)
         {
