@@ -12,6 +12,7 @@ public class Basic4WheelDriveHardware
     public DcMotor FRTest;
     public DcMotor BLTest;
     public DcMotor BRTest;
+    public DcMotor susanTest;
    // public Servo servo2;
 
     //declaring values for use with encoders
@@ -36,10 +37,16 @@ public class Basic4WheelDriveHardware
         FRTest = hwMap.get(DcMotor.class, "FRTest");
         BLTest = hwMap.get(DcMotor.class, "BLTest");
         BRTest = hwMap.get(DcMotor.class, "BRTest");
+        susanTest = hwMap.get(DcMotor.class, "susanTest");
         FLTest.setDirection(DcMotorSimple.Direction.FORWARD);
         FRTest.setDirection(DcMotorSimple.Direction.REVERSE);
         BLTest.setDirection(DcMotorSimple.Direction.FORWARD);
         BRTest.setDirection(DcMotorSimple.Direction.REVERSE);
+//        FLTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        FRTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        BLTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        BRTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        susanTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //servo2 = hwMap.get(Servo.class, "servo2");
 
     }
