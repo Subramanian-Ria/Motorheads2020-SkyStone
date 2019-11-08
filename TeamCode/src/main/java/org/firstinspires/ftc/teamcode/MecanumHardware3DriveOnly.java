@@ -43,7 +43,7 @@ public class MecanumHardware3DriveOnly
         bLMotor = hwMap.get(DcMotor.class, "bLMotor");
 
         //distSen = hwMap.get(DistanceSensor.class, "distSen");
-        sensorColor = hwMap.get(ColorSensor.class, "sensorColor");
+        //sensorColor = hwMap.get(ColorSensor.class, "sensorColor");
         //servo1 = hwMap.get(Servo.class, "servo1");
         //servo2 = hwMap.get(Servo.class, "servo2");
 

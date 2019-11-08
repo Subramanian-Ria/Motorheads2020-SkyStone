@@ -32,11 +32,6 @@ public class MecanumTeleop3DriveOnly extends OpMode {
     {
 
         mecanumMove();
-        robot.sensorColor.enableLed(false);
-        telemetry.addData("Alpha", robot.sensorColor.alpha());
-        telemetry.addData("Red  ", robot.sensorColor.red());
-        telemetry.addData("Green", robot.sensorColor.green());
-        telemetry.addData("Blue ", robot.sensorColor.blue());
         //telemetry.addData("Distance Sensor", robot.distSen.getDistance(DistanceUnit.INCH));
         /*if(gamepad1.a)
         {

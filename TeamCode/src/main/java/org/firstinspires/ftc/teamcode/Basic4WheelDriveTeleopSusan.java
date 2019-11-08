@@ -7,9 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name="Basic4WheelDriveTeleop", group="ServoTest")
 //@Disabled
 
-public class Basic4WheelDriveTeleop extends OpMode {
+public class Basic4WheelDriveTeleopSusan extends OpMode {
 
-    Basic4WheelDriveHardware robot = new Basic4WheelDriveHardware();
+    Basic4WheelDriveHardwareSusan robot = new Basic4WheelDriveHardwareSusan();
 
     private float drive = .8f;
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
