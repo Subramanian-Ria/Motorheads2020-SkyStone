@@ -86,6 +86,8 @@ public class TestDriving extends LinearOpMode {
         turnDegrees(45, "z", 1, 5, false);
         sleep(500);
         turnDegrees(-45, "z", 1, 5, false);
+        sleep(500);
+        turnDegrees(0, "z", 1, 5, false);
         sleep(1500);
         encoderDrive(10, "f", 10, 1);
         sleep(500);
@@ -177,14 +179,14 @@ public class TestDriving extends LinearOpMode {
                     }
                 }
             }
-        } while (opModeIsActive() && ((error > 0.3) || (error < -0.3)) && (runtime.seconds() < timeoutS));
+        } while (opModeIsActive() && ((error > .3) || (error < -0.3)) && (runtime.seconds() < timeoutS));
         normalDrive(0, 0);
 
     }
 
     public double pidMultiplier(double error) {
         //equation for power multiplier is x/sqrt(x^2 + C)
-        int C = 600;
+        int C = 100;
         return Math.abs(error / Math.sqrt((error * error) + C));
     }
 
@@ -316,9 +318,9 @@ public class TestDriving extends LinearOpMode {
                 robot.bRMotor.setPower(Math.abs(powerBL));
                 robot.bLMotor.setPower(Math.abs(powerBR));
                 //Display it for the driver.
-                telemetry.addData("Remaining Dist",  "Running to %i :%i :%i :%i", errorFL,  errorFR, errorBL, errorBR);
-                telemetry.addData("Current Pos",  "Running to %7d :%7d :%7d :%7d", robot.fLMotor.getCurrentPosition(),  robot.fRMotor.getCurrentPosition(), robot.bLMotor.getCurrentPosition(), robot.bRMotor.getCurrentPosition());
-                telemetry.addData("Target",  "Running at %i :%i :%i :%i", TargetFL, TargetFR, TargetBL, TargetBR);
+                telemetry.addData("Remaining Dist",  "Running to %7d :%7d :%7d :%7d", errorFL,  errorFR, errorBL, errorBR);
+                telemetry.addData("Current Pos",  "Running to " + robot.fLMotor.getCurrentPosition() + robot.fRMotor.getCurrentPosition() + robot.bLMotor.getCurrentPosition() + robot.bRMotor.getCurrentPosition());
+                telemetry.addData("Target",  "Running to " + TargetFL + TargetFR + TargetBL +TargetBR);
                 telemetry.addData("Power",  "Running at %7d :%7d :%7d :%7d", powerFL, powerFR, powerBL, powerBR);
                 //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
                 telemetry.update();
