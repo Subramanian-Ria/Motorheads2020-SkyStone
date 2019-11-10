@@ -24,14 +24,25 @@ public class TestDriving extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     String xyz = "z";
 
-
-    static final double COUNTS_PER_MOTOR_REV = 537; //216
-    static final double DRIVE_GEAR_REDUCTION = 0.6666;     // This is < 1.0 if geared UP
-    static final double WHEEL_DIAMETER_INCHES = 3.4;     // For figuring circumference
-    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    static final double     COUNTS_PER_MOTOR_REV = 1120 ;    // Currently: Andymark Neverest 40
+    static final double     DRIVE_GEAR_REDUCTION = .88;     // This is < 1.0 if geared UP //On OUR CENTER MOTOR THE GEAR REDUCTION IS .5
+    static final double     DRIVE_GEAR_REDUCTION_CM = 0.5 ;
+    static final double     WHEEL_DIAMETER_INCHES = 3.54331;     // For figuring circumference
+    static final double     COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double DRIVE_SPEED = 1;
-    static final double TURN_SPEED = 0.5;
+    static final double     COUNTS_PER_INCH_CM = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION_CM) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double     DRIVE_SPEED = .7;
+    static final double TURN_SPEED = .4;
+
+
+//    static final double COUNTS_PER_MOTOR_REV = 537; //216
+//    static final double DRIVE_GEAR_REDUCTION = 0.6666;     // This is < 1.0 if geared UP
+//    static final double WHEEL_DIAMETER_INCHES = 3.4;     // For figuring circumference
+//    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+//            (WHEEL_DIAMETER_INCHES * 3.1415);
+//    static final double DRIVE_SPEED = 1;
+//    static final double TURN_SPEED = 0.5;
     BNO055IMU imu;
 
     @Override
@@ -79,24 +90,24 @@ public class TestDriving extends LinearOpMode {
         waitForStart();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        turnDegrees(90, "z", 1, 5, false);
-        sleep(500);
-        turnDegrees(-90, "z", 1, 5, false);
-        sleep(500);
-        turnDegrees(45, "z", 1, 5, false);
-        sleep(500);
-        turnDegrees(-45, "z", 1, 5, false);
-        sleep(500);
-        turnDegrees(0, "z", 1, 5, false);
-        sleep(1500);
-        encoderDrive(10, "f", 10, 1);
-        sleep(500);
-        encoderDrive(10, "r", 10, 1);
-        sleep(500);
-        encoderDrive(10, "b", 10, 1);
-        sleep(500);
-        encoderDrive(10, "l", 10, 1);
-        sleep(500);
+        turnToPosition(90, "z", 1, 5, false);
+//        sleep(100);
+//        turnDegrees(-90, "z", 1, 5, false);
+//        sleep(100);
+//        turnDegrees(45, "z", 1, 5, false);
+//        sleep(100);
+//        turnDegrees(-45, "z", 1, 5, false);
+//        sleep(100);
+//        turnDegrees(0, "z", 1, 5, false);
+//        sleep(1500);
+//        encoderDrive(19.75, "f", 10, .8);
+//        sleep(100);
+//        encoderDrive(10, "r", 10, 1);
+//        sleep(100);
+//        encoderDrive(10, "b", 10, 1);
+//        sleep(100);
+//        encoderDrive(10, "l", 10, 1);
+//        sleep(100);
         //tf.start(); //moved to start of program
 
     }
@@ -124,8 +135,9 @@ public class TestDriving extends LinearOpMode {
     }
 
 
-    public void turnDegrees (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
+    public void turnToPosition (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
         //Write code to correct to a target position (NOT FINISHED)
+        target*= -1;
         double originalAngle = readAngle(xyz);
 
 
@@ -138,7 +150,7 @@ public class TestDriving extends LinearOpMode {
             angle = readAngle(xyz);
             error = angle - target;
             if (!isCorrection) {
-                powerScaled = topPower * (error / 180) * pidMultiplier(error);
+                powerScaled = topPower * (error / 180) * pidMultiplierTurning(error);
             }
 
             //double powerScaled = power*pidMultiplier(error);
@@ -184,9 +196,14 @@ public class TestDriving extends LinearOpMode {
 
     }
 
-    public double pidMultiplier(double error) {
+    public double pidMultiplierDriving(double error) {
         //equation for power multiplier is x/sqrt(x^2 + C)
         int C = 100;
+        return Math.abs(error / Math.sqrt((error * error) + C));
+    }
+    public double pidMultiplierTurning(double error) {
+        //equation for power multiplier is x/sqrt(x^2 + C)
+        double C = .1;
         return Math.abs(error / Math.sqrt((error * error) + C));
     }
 
@@ -308,22 +325,27 @@ public class TestDriving extends LinearOpMode {
                 errorBL = TargetBL - robot.bLMotor.getCurrentPosition();
                 errorBR = TargetBR - robot.bRMotor.getCurrentPosition();
 
-                powerFL = topPower * pidMultiplier(errorFL);
-                powerFR = topPower * pidMultiplier(errorFR);
-                powerBL = topPower * pidMultiplier(errorBL);
-                powerBR = topPower* pidMultiplier(errorBR);
+                powerFL = topPower * pidMultiplierDriving(errorFL);
+                powerFR = topPower * pidMultiplierDriving(errorFR);
+                powerBL = topPower * pidMultiplierDriving(errorBL);
+                powerBR = topPower* pidMultiplierDriving(errorBR);
 
                 robot.fLMotor.setPower(Math.abs(powerFL));
                 robot.fRMotor.setPower(Math.abs(powerFR));
                 robot.bRMotor.setPower(Math.abs(powerBL));
                 robot.bLMotor.setPower(Math.abs(powerBR));
-                //Display it for the driver.
-                telemetry.addData("Remaining Dist",  "Running to %7d :%7d :%7d :%7d", errorFL,  errorFR, errorBL, errorBR);
-                telemetry.addData("Current Pos",  "Running to " + robot.fLMotor.getCurrentPosition() + robot.fRMotor.getCurrentPosition() + robot.bLMotor.getCurrentPosition() + robot.bRMotor.getCurrentPosition());
-                telemetry.addData("Target",  "Running to " + TargetFL + TargetFR + TargetBL +TargetBR);
-                telemetry.addData("Power",  "Running at %7d :%7d :%7d :%7d", powerFL, powerFR, powerBL, powerBR);
+                telemetry.addData("Path1",  "Running to %7d :%7d :%7d :%7d", TargetFL,  TargetFR, TargetBL, TargetBR);
+
+                telemetry.addData("Path2",  "Running at %7d :%7d :%7d :%7d", robot.fLMotor.getCurrentPosition(), robot.fRMotor.getCurrentPosition(), robot.bLMotor.getCurrentPosition(), robot.bRMotor.getCurrentPosition());
                 //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
                 telemetry.update();
+                //Display it for the driver.
+//                telemetry.addData("Remaining Dist",  "Running to %7d :%7d :%7d :%7d", errorFL,  errorFR, errorBL, errorBR);
+//                telemetry.addData("Current Pos",  "Running to " + robot.fLMotor.getCurrentPosition() + robot.fRMotor.getCurrentPosition() + robot.bLMotor.getCurrentPosition() + robot.bRMotor.getCurrentPosition());
+//                telemetry.addData("Target",  "Running to " + TargetFL + TargetFR + TargetBL +TargetBR);
+//                telemetry.addData("Power",  "Running at %7d :%7d :%7d :%7d", powerFL, powerFR, powerBL, powerBR);
+                //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
+                //telemetry.update();
             }
 
             // Stop all motion;
