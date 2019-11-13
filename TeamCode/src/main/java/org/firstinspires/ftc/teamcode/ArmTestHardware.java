@@ -30,6 +30,7 @@ public class ArmTestHardware
 
         // Define Motors
         armTest = hwMap.get(DcMotor.class, "armTest");
+//        armTest.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armTest.setDirection(DcMotorSimple.Direction.FORWARD);
         //servo2 = hwMap.get(Servo.class, "servo2");
 

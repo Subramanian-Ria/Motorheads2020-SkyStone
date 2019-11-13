@@ -24,6 +24,7 @@ public class ArmTestTeleop extends OpMode {
     @Override
     public void loop()
     {
+        telemetry.addData("armEncoder", robot.armTest.getCurrentPosition());
 //        if(gamepad1.b)
 //        {
 //            if(robot.susanTest.getPower() != 0)
@@ -65,16 +66,25 @@ public class ArmTestTeleop extends OpMode {
 //        }
         if(gamepad1.a)
         {
-            robot.armTest.setPower(.55);
+            robot.armTest.setPower(1);
         }
         else if(gamepad1.b)
         {
-            robot.armTest.setPower(-.55);
+            robot.armTest.setPower(-1);
+        }
+        else if(gamepad1.x)
+        {
+            robot.armTest.setPower(.7);
+        }
+        else if(gamepad1.y)
+        {
+            robot.armTest.setPower(-.7);
         }
         else
         {
             robot.armTest.setPower(0);
         }
+        telemetry.update();
     }
 
 }
