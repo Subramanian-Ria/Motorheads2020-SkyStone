@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-@Autonomous(name="TestDriving", group="Mecanum")
+@Autonomous(name="StoneRed", group="Mecanum")
 public class StoneRed extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -92,23 +92,34 @@ public class StoneRed extends LinearOpMode {
         im almost certain that what I wrote below is wrong, and has a lot of issues. Feel free to scold me, so long as you get it working
         and explain what you changed and why in commit messages. Hopefully what I wrote was decent enough for only a few lines of change. Yay is suck - Xander
          */
+        /*AUTONOMOUS MEASUREMENTS/SEQUENCE
+        from start pos(center aligned with in between 2 and 3
+        move 3.5in backwards(to scan for first skystone
+        move 93in forward (assuming skystone is at 3) (at like 77in drop skystone)
+        extend arm 38.25in (probably)
+        retract the 37.25 (to avoid nudging it out of validity
+        move 113in
+        retract 1 in (to get it back to flush
+         */
 //the below assumes that first block is skystone. add addtional movement at start and scan code for final
-        armExtend(40,1, 10);
-        sleep(5000);//part where the claw scans and grabs block
-        armExtend(40, -1, 10);//retracts arm back to robot
-        encoderDrive(40, "f", 15, 1);//drives down to field
-        armExtend(20,1,10);
-        armExtend(20,-1,10);
-        encoderDrive(50, "b", 15, 1);
-        armExtend(40,1, 10);
-        sleep(5000);
-        armExtend(40,-1,10);
-        encoderDrive(45, "f", 15, 1);
-        //susanrotate
-        armExtend(5,1,10);
-        //claw release
-        armExtend(5, -1, 10);
-        encoderDrive(20, "b", 15, 1);
+        encoderDrive(3.5,"b",15,1);
+        encoderCorrectionDrive(93, "f", 15, 1);
+//        armExtend(40,1, 10);
+//        sleep(5000);//part where the claw scans and grabs block
+//        armExtend(40, -1, 10);//retracts arm back to robot
+//        encoderDrive(40, "f", 15, 1);//drives down to field
+//        armExtend(20,1,10);
+//        armExtend(20,-1,10);
+//        encoderDrive(50, "b", 15, 1);
+//        armExtend(40,1, 10);
+//        sleep(5000);
+//        armExtend(40,-1,10);
+//        encoderDrive(45, "f", 15, 1);
+//        //susanrotate
+//        armExtend(5,1,10);
+//        //claw release
+//        armExtend(5, -1, 10);
+//        encoderDrive(20, "b", 15, 1);
     }
 
     public static double counts(double inches)
@@ -133,21 +144,21 @@ public class StoneRed extends LinearOpMode {
         }
     }
 
-    public void armExtend(int target, double power, double timeoutS)
-    {
-        telemetry.addData("armPos", robot.armExt.getCurrentPosition());
-        robot.armExt.setTargetPosition((int)( target* COUNTS_PER_INCH));
-
-        robot.armExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        runtime.reset();
-        while(opModeIsActive() && runtime.seconds() < timeoutS && robot.armExt.getCurrentPosition() < robot.armExt.getTargetPosition())
-        {
-            robot.armExt.setPower(power);
-            telemetry.update();
-        }
-        robot.armExt.setPower(0);
-    }
+//    public void armExtend(double target, double power, double timeoutS)
+//    {
+//        telemetry.addData("armPos", robot.armExt.getCurrentPosition());
+//        robot.armExt.setTargetPosition((int)( target* COUNTS_PER_INCH));
+//
+//        robot.armExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//        runtime.reset();
+//        while(opModeIsActive() && runtime.seconds() < timeoutS && robot.armExt.getCurrentPosition() < robot.armExt.getTargetPosition())
+//        {
+//            robot.armExt.setPower(power);
+//            telemetry.update();
+//        }
+//        robot.armExt.setPower(0);
+//    }
 
     public void turnToPosition (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
         //Write code to correct to a target position (NOT FINISHED)
@@ -236,7 +247,7 @@ public class StoneRed extends LinearOpMode {
         }
     }
 
-    public void encoderDrive(double inches, String direction, double timeoutS, double topPower)
+    public void encoderCorrectionDrive(double inches, String direction, double timeoutS, double topPower)
     {
 
         int TargetFL = 0;
@@ -360,6 +371,121 @@ public class StoneRed extends LinearOpMode {
 //                telemetry.addData("Power",  "Running at %7d :%7d :%7d :%7d", powerFL, powerFR, powerBL, powerBR);
                 //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
                 //telemetry.update();
+            }
+
+            // Stop all motion;
+            robot.fLMotor.setPower(0);
+            robot.bLMotor.setPower(0);
+            robot.fRMotor.setPower(0);
+            robot.bRMotor.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            robot.bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.fRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //  sleep(250);   // optional pause after each move
+        }
+    }
+    public void encoderDrive(double inches, String direction, double timeoutS, double Speed)
+    {
+
+        int TargetFL = 0;
+        int TargetFR = 0;
+        int TargetBL = 0;
+        int TargetBR = 0;
+
+
+        String heading = direction;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+            if(heading == "f")
+            {
+                TargetFL = robot.fLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+                TargetFR = robot.fRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+                TargetBL = robot.bLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+                TargetBR = robot.bRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+
+            }
+
+            else if(heading == "b")
+            {
+                TargetFL = robot.fLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+                TargetFR = robot.fRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+                TargetBL = robot.bLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+                TargetBR = robot.bRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+
+
+            }
+
+            else if(heading == "r")
+            {
+                TargetFL = robot.fLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+                TargetFR = robot.fRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+                TargetBL = robot.bLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+                TargetBR = robot.bRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH); //weird should be +
+
+
+            }
+
+            else if(heading == "l")
+            {
+                TargetFL = robot.fLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+                TargetFR = robot.fRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+                TargetBL = robot.bLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH); // weird should be +
+                TargetBR = robot.bRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
+
+            }
+
+            else
+            {
+                telemetry.addData("not a valid direction", heading );
+            }
+
+            // Determine new target position, and pass to motor controller
+
+            robot.fLMotor.setTargetPosition(TargetFL);
+            robot.fRMotor.setTargetPosition(TargetFR);
+            robot.bRMotor.setTargetPosition(TargetBR);
+            robot.bLMotor.setTargetPosition(TargetBL);
+
+
+            // Turn On RUN_TO_POSITION
+            robot.fLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.fRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.bRMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.bLMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            robot.fLMotor.setPower(Math.abs(Speed));
+            robot.fRMotor.setPower(Math.abs(Speed));
+            robot.bRMotor.setPower(Math.abs(Speed));
+            robot.bLMotor.setPower(Math.abs(Speed));
+            /*robot.fLMotor.setPower(Speed);
+            robot.fRMotor.setPower(Speed);
+            robot.bRMotor.setPower(Speed);
+            robot.bLMotor.setPower(Speed);*/
+
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) && ((robot.fLMotor.isBusy() && robot.fRMotor.isBusy()) && robot.bLMotor.isBusy() && robot.bRMotor.isBusy()))
+            {
+
+                //Display it for the driver.
+                telemetry.addData("Path1",  "Running to %7d :%7d :%7d :%7d", TargetFL,  TargetFR, TargetBL, TargetBR);
+
+                telemetry.addData("Path2",  "Running at %7d :%7d :%7d :%7d", robot.fLMotor.getCurrentPosition(), robot.fRMotor.getCurrentPosition(), robot.bLMotor.getCurrentPosition(), robot.bRMotor.getCurrentPosition());
+                //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
+                telemetry.update();
             }
 
             // Stop all motion;

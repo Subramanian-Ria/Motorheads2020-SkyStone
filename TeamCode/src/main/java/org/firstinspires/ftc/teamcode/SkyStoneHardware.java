@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.motors.RevRoboticsCoreHexMotor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -11,6 +12,7 @@ public class SkyStoneHardware
     public DcMotor fRMotor;
     public DcMotor bLMotor;
     public DcMotor bRMotor;
+    //public RevRoboticsCoreHexMotor armLift;
     public DcMotor susan;
     public DcMotor armExt;
     //public DistanceSensor distSen;
@@ -42,6 +44,7 @@ public class SkyStoneHardware
         bLMotor = hwMap.get(DcMotor.class, "bLMotor");
         susan = hwMap.get(DcMotor.class, "susan");
         armExt = hwMap.get(DcMotor.class, "armExt");
+        //armLift = hwMap.get(RevRoboticsCoreHexMotor.class, "armLift");
         //distSen = hwMap.get(DistanceSensor.class, "distSen");
         //sensorColor = hwMap.get(ColorSensor.class, "sensorColor");
         //servo1 = hwMap.get(Servo.class, "servo1");
@@ -66,9 +69,9 @@ public class SkyStoneHardware
 
         //flipped these 4
         fLMotor.setDirection(DcMotor.Direction.FORWARD);
-        fRMotor.setDirection(DcMotor.Direction.FORWARD);
+        fRMotor.setDirection(DcMotor.Direction.REVERSE);
         bLMotor.setDirection(DcMotor.Direction.FORWARD);
-        bRMotor.setDirection(DcMotor.Direction.FORWARD);
+        bRMotor.setDirection(DcMotor.Direction.REVERSE);
 
     }
 }
