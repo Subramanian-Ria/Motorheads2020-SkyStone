@@ -16,24 +16,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-@Autonomous(name="TestDriving", group="Mecanum")
+@Autonomous(name="TestDriving", group="Skystone")
 public class TestDriving extends LinearOpMode {
 
     /* Declare OpMode members. */
-    MecanumHardware3DriveOnly robot = new MecanumHardware3DriveOnly();
+    SkyStoneHardware robot = new SkyStoneHardware();
     private ElapsedTime runtime = new ElapsedTime();
     String xyz = "z";
 
     static final double     COUNTS_PER_MOTOR_REV = 1120 ;    // Currently: Andymark Neverest 40
-    static final double     DRIVE_GEAR_REDUCTION = .88;     // This is < 1.0 if geared UP //On OUR CENTER MOTOR THE GEAR REDUCTION IS .5
-    static final double     DRIVE_GEAR_REDUCTION_CM = 0.5 ;
-    static final double     WHEEL_DIAMETER_INCHES = 3.54331;     // For figuring circumference
+    static final double     COUNTS_PER_REV_ARM = 1440;
+    static final double     COUNTS_PER_INCH_ARM = COUNTS_PER_REV_ARM/4;
+    static final double     DRIVE_GEAR_REDUCTION = 1;     // This is < 1.0 if geared UP //On OUR CENTER MOTOR THE GEAR REDUCTION IS .5
+    static final double     WHEEL_DIAMETER_INCHES = 4;     // For figuring circumference
     static final double     COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     COUNTS_PER_INCH_CM = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION_CM) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED = .7;
-    static final double TURN_SPEED = .4;
 
 
 //    static final double COUNTS_PER_MOTOR_REV = 537; //216
@@ -224,7 +221,6 @@ public class TestDriving extends LinearOpMode {
 
     public void encoderDrive(double inches, String direction, double timeoutS, double topPower)
     {
-
         int TargetFL = 0;
         int TargetFR = 0;
         int TargetBL = 0;
@@ -361,5 +357,26 @@ public class TestDriving extends LinearOpMode {
             robot.fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //  sleep(250);   // optional pause after each move
         }
+    }
+    public void armExtend(double inches, double topPower, double timeoutS)
+    {
+        //TODO: CHECK PULLEY CIRCUMFERENCE
+        int target = robot.armExt.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH_ARM);
+
+        robot.armExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        robot.armExt.setTargetPosition(target);
+
+        runtime.reset();
+        while(opModeIsActive() && runtime.seconds() < timeoutS && robot.armExt.isBusy())
+        {
+            double error = target - robot.armExt.getCurrentPosition();
+            double power = topPower * pidMultiplierDriving(error);
+            robot.armExt.setPower(power);
+            telemetry.addData("Path1",  "Running to %7d", target);
+            telemetry.addData("Path2",  "Running at %7d", robot.armExt.getCurrentPosition());
+            telemetry.update();
+        }
+        robot.armExt.setPower(0);
     }
 }

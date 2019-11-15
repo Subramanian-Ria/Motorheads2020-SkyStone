@@ -2,14 +2,18 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
-public class ServoTestHardware
+public class ColorSensorBarTestHardware
 {
 
     //public DistanceSensor distSen;
-    public DcMotor susanTest;
+//    public DcMotor susanTest;
+    public ColorSensor sen1;
+//    public ColorSensor sen2;
+//    public ColorSensor sen3;
+    //public DistanceSensor dist;
    // public Servo servo2;
 
     //declaring values for use with encoders
@@ -30,7 +34,11 @@ public class ServoTestHardware
         hwMap = ahwMap;
 
         // Define Motors
-        susanTest = hwMap.get(DcMotor.class, "servo1");
+        //susanTest = hwMap.get(DcMotor.class, "servo1");
+        sen1 = hwMap.get(ColorSensor.class, "sen1");
+//        sen2 = hwMap.get(ColorSensor.class, "sen2");
+//        sen3 = hwMap.get(ColorSensor.class, "sen3");
+//        dist = hwMap.get(DistanceSensor.class, "dist");
         //servo2 = hwMap.get(Servo.class, "servo2");
 
     }

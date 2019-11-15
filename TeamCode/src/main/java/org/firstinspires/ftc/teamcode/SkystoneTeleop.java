@@ -4,10 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
-@TeleOp(name="SkystoneTeleOp", group="ServoTest")
+@TeleOp(name="SkystoneTeleOp", group="Skystone")
 //@Disabled
 
-public class Basic4WheelDriveTeleopSusan extends OpMode {
+public class SkystoneTeleop extends OpMode {
 
     SkyStoneHardware robot = new SkyStoneHardware();
 
@@ -30,9 +30,9 @@ public class Basic4WheelDriveTeleopSusan extends OpMode {
     {
         if(Math.abs(gamepad1.right_stick_x) > .1)
         {
-            robot.fLMotor.setPower(-gamepad1.right_stick_x);
+            robot.fLMotor.setPower(gamepad1.right_stick_x);
             robot.fRMotor.setPower(gamepad1.right_stick_x);
-            robot.bLMotor.setPower(-gamepad1.right_stick_x);
+            robot.bLMotor.setPower(gamepad1.right_stick_x);
             robot.bRMotor.setPower(gamepad1.right_stick_x);
         }
         else if(Math.abs(gamepad1.left_stick_y) > .1)

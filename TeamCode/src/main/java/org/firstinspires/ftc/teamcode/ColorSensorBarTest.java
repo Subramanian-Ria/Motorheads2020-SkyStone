@@ -2,17 +2,14 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
-@TeleOp(name="LightSensorBarTest", group="ServoTest")
+@TeleOp(name="LightSensorBarTest", group="ColorSensor")
 //@Disabled
 
-public class LightSensorBarTest extends OpMode {
+public class ColorSensorBarTest extends OpMode {
 
-    LightSensorBarTestHardware robot = new LightSensorBarTestHardware();
+    ColorSensorBarTestHardware robot = new ColorSensorBarTestHardware();
 
     private float drive = .8f;
 

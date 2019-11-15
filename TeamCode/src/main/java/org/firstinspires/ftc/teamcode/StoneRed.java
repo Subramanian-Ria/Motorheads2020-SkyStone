@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-@Autonomous(name="StoneRed", group="Mecanum")
+@Autonomous(name="StoneRed", group="Skystone")
 public class StoneRed extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -24,15 +24,12 @@ public class StoneRed extends LinearOpMode {
     String xyz = "z";
 
     static final double     COUNTS_PER_MOTOR_REV = 1120 ;    // Currently: Andymark Neverest 40
-    static final double     DRIVE_GEAR_REDUCTION = .88;     // This is < 1.0 if geared UP //On OUR CENTER MOTOR THE GEAR REDUCTION IS .5
-    static final double     DRIVE_GEAR_REDUCTION_CM = 0.5 ;
-    static final double     WHEEL_DIAMETER_INCHES = 3.54331;     // For figuring circumference
+    static final double     COUNTS_PER_REV_ARM = 1440;
+    static final double     COUNTS_PER_INCH_ARM = COUNTS_PER_REV_ARM/4;
+    static final double     DRIVE_GEAR_REDUCTION = 1;     // This is < 1.0 if geared UP //On OUR CENTER MOTOR THE GEAR REDUCTION IS .5
+    static final double     WHEEL_DIAMETER_INCHES = 4;     // For figuring circumference
     static final double     COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     COUNTS_PER_INCH_CM = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION_CM) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED = .7;
-    static final double TURN_SPEED = .4;
 
 
 //    static final double COUNTS_PER_MOTOR_REV = 537; //216
@@ -102,7 +99,7 @@ public class StoneRed extends LinearOpMode {
         retract 1 in (to get it back to flush
          */
 //the below assumes that first block is skystone. add addtional movement at start and scan code for final
-        encoderDrive(3.5,"b",15,1);
+        encoderCorrectionDrive(3.5,"b",15,1);
         encoderCorrectionDrive(93, "f", 15, 1);
 //        armExtend(40,1, 10);
 //        sleep(5000);//part where the claw scans and grabs block
@@ -144,21 +141,27 @@ public class StoneRed extends LinearOpMode {
         }
     }
 
-//    public void armExtend(double target, double power, double timeoutS)
-//    {
-//        telemetry.addData("armPos", robot.armExt.getCurrentPosition());
-//        robot.armExt.setTargetPosition((int)( target* COUNTS_PER_INCH));
-//
-//        robot.armExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//
-//        runtime.reset();
-//        while(opModeIsActive() && runtime.seconds() < timeoutS && robot.armExt.getCurrentPosition() < robot.armExt.getTargetPosition())
-//        {
-//            robot.armExt.setPower(power);
-//            telemetry.update();
-//        }
-//        robot.armExt.setPower(0);
-//    }
+    public void armExtend(double inches, double topPower, double timeoutS)
+    {
+        //TODO: CHECK PULLEY CIRCUMFERENCE
+        int target = robot.armExt.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH_ARM);
+
+        robot.armExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        robot.armExt.setTargetPosition(target);
+
+        runtime.reset();
+        while(opModeIsActive() && runtime.seconds() < timeoutS && robot.armExt.isBusy())
+        {
+            double error = target - robot.armExt.getCurrentPosition();
+            double power = topPower * pidMultiplierDriving(error);
+            robot.armExt.setPower(power);
+            telemetry.addData("Path1",  "Running to %7d", target);
+            telemetry.addData("Path2",  "Running at %7d", robot.armExt.getCurrentPosition());
+            telemetry.update();
+        }
+        robot.armExt.setPower(0);
+    }
 
     public void turnToPosition (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
         //Write code to correct to a target position (NOT FINISHED)
@@ -268,7 +271,7 @@ public class StoneRed extends LinearOpMode {
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
-            if(heading == "f")
+            if(heading == "b")
             {
                 TargetFL = robot.fLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
                 TargetFR = robot.fRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
@@ -277,7 +280,7 @@ public class StoneRed extends LinearOpMode {
 
             }
 
-            else if(heading == "b")
+            else if(heading == "f")
             {
                 TargetFL = robot.fLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
                 TargetFR = robot.fRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
