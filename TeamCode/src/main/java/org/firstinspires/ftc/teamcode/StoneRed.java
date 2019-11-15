@@ -24,21 +24,15 @@ public class StoneRed extends LinearOpMode {
     String xyz = "z";
 
     static final double     COUNTS_PER_MOTOR_REV = 1120 ;    // Currently: Andymark Neverest 40
-    static final double     COUNTS_PER_REV_ARM = 1440;
+    static final double     COUNTS_PER_REV_ARM = 1495; //Tetrix TorqueNado 60:1 - changing to hd hex motor - think we want the value below,2240 switching because it
+    //TODO: ALRIGHT LISTEN HERE - APPARENTLY FOR NO APPARENT REASON THAT HAS ANY APPARENT REASON TO APPARENTLY WORK YOU HAVE TO STOP AND RESET THE ENCODER AFTER YOU USE THE MOTOR WHILE ALSO STOPPING AND RESETTING THE ENCODER AT THE START OF THE PROGRAM
+//    static final double     COUNTS_PER_REV_ARM_LIFT = 2240; //rev core hex motor -- value is irrelevant -- core hex motor is 288
     static final double     COUNTS_PER_INCH_ARM = COUNTS_PER_REV_ARM/4;
-    static final double     DRIVE_GEAR_REDUCTION = 1;     // This is < 1.0 if geared UP //On OUR CENTER MOTOR THE GEAR REDUCTION IS .5
+//    static final double     COUNTS_PER_INCH_ARM_LIFT = COUNTS_PER_REV_ARM_LIFT/4;
+    static final double     DRIVE_GEAR_REDUCTION = 1;     // This is < 1.0 if geared UP TODO: TEST THIS
     static final double     WHEEL_DIAMETER_INCHES = 4;     // For figuring circumference
     static final double     COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-
-
-//    static final double COUNTS_PER_MOTOR_REV = 537; //216
-//    static final double DRIVE_GEAR_REDUCTION = 0.6666;     // This is < 1.0 if geared UP
-//    static final double WHEEL_DIAMETER_INCHES = 3.4;     // For figuring circumference
-//    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-//            (WHEEL_DIAMETER_INCHES * 3.1415);
-//    static final double DRIVE_SPEED = 1;
-//    static final double TURN_SPEED = 0.5;
     BNO055IMU imu;
 
     @Override
@@ -68,6 +62,11 @@ public class StoneRed extends LinearOpMode {
         sensorRangeR.initialize();
         */
         //side motors
+        robot.armLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.armExt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.armLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.armExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         robot.fLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.fRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -86,7 +85,7 @@ public class StoneRed extends LinearOpMode {
         waitForStart();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
         /*
-        im almost certain that what I wrote below is wrong, and has a lot of issues. Feel free to scold me, so long as you get it working
+        i'm almost certain that what I wrote below is wrong, and has a lot of issues. Feel free to scold me, so long as you get it working
         and explain what you changed and why in commit messages. Hopefully what I wrote was decent enough for only a few lines of change. Yay is suck - Xander
          */
         /*AUTONOMOUS MEASUREMENTS/SEQUENCE
@@ -99,8 +98,12 @@ public class StoneRed extends LinearOpMode {
         retract 1 in (to get it back to flush
          */
 //the below assumes that first block is skystone. add addtional movement at start and scan code for final
-        encoderCorrectionDrive(3.5,"b",15,1);
-        encoderCorrectionDrive(93, "f", 15, 1);
+//        encoderCorrectionDrive(-3.5, 15,1);
+//        encoderCorrectionDrive(93, 15, 1);
+//        armLift(1,.5,5);
+        armExtend(40,1,10);
+        robot.armExt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.armExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        armExtend(40,1, 10);
 //        sleep(5000);//part where the claw scans and grabs block
 //        armExtend(40, -1, 10);//retracts arm back to robot
@@ -146,25 +149,116 @@ public class StoneRed extends LinearOpMode {
         //TODO: CHECK PULLEY CIRCUMFERENCE
         int target = robot.armExt.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH_ARM);
 
+        robot.armExt.setTargetPosition(target);
         robot.armExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        robot.armExt.setTargetPosition(target);
+
 
         runtime.reset();
         while(opModeIsActive() && runtime.seconds() < timeoutS && robot.armExt.isBusy())
         {
             double error = target - robot.armExt.getCurrentPosition();
+            //TODO: CHECK PID MULTIPLIER FOR ARM EX (CURRENTLY USING SAME C AS DRIVING
             double power = topPower * pidMultiplierDriving(error);
             robot.armExt.setPower(power);
-            telemetry.addData("Path1",  "Running to %7d", target);
-            telemetry.addData("Path2",  "Running at %7d", robot.armExt.getCurrentPosition());
+            telemetry.addData("Path1",  "Running to %7.2f", inches);
+            //TODO: the below equation is probably wrong
+            telemetry.addData("Path2",  "Running at %7.2f", robot.armExt.getCurrentPosition() / (int)(inches * COUNTS_PER_INCH_ARM));
             telemetry.update();
         }
         robot.armExt.setPower(0);
+        robot.armExt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.armExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+//    public void armLift(double inches, double topPower, double timeoutS)
+//    {
+//        //TODO: CHECK PULLEY CIRCUMFERENCE
+//        int target = robot.armLift.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH_ARM_LIFT);
+//
+//        robot.armLift.setTargetPosition(target);
+//        robot.armLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//
+//
+//        runtime.reset();
+//        while(opModeIsActive() && runtime.seconds() < timeoutS && robot.armLift.isBusy())
+//        {
+//            double error = target - robot.armLift.getCurrentPosition();
+//            //TODO: CHECK PID MULTIPLIER FOR ARM EX (CURRENTLY USING SAME C AS DRIVING
+//            double power = topPower * pidMultiplierDriving(error);
+//            robot.armLift.setPower(power);
+//            telemetry.addData("Path1",  "Running to %7d", target);
+//            telemetry.addData("Path2",  "Running at %7d", robot.armLift.getCurrentPosition());
+//            telemetry.update();
+//        }
+//        robot.armLift.setPower(0);
+//    }
+
+    public void turnDegrees(double degrees, String xyz, double topPower, double timeoutS, boolean isCorrection)
+    {
+        //TODO: TEST
+        degrees *= -1;
+        double originalAngle = readAngle(xyz);
+
+
+        runtime.reset();
+
+        double angle = readAngle(xyz); //variable for gyro correction around z axis
+        double target =angle + degrees;
+        double error = angle - target;
+        double powerScaled = topPower;
+        do {
+            angle = readAngle(xyz);
+            error = angle - target;
+            if(!isCorrection)
+            {
+                powerScaled = topPower * (error / 180) * pidMultiplierTurning(error);
+            }
+
+            //double powerScaled = power*pidMultiplier(error);
+            telemetry.addData("original angle", originalAngle);
+            telemetry.addData("current angle", readAngle(xyz));
+            telemetry.addData("error", error);
+            telemetry.update();
+            if (error > 0) {
+                if (xyz.equals("z")) {
+                    normalDrive(powerScaled, -powerScaled);
+                }
+                if (xyz.equals("y")) {
+                    if (opModeIsActive()) {
+                        robot.fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.fRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.fLMotor.setPower(powerScaled);
+                        robot.fRMotor.setPower(powerScaled);
+                        robot.bLMotor.setPower(powerScaled);
+                        robot.bRMotor.setPower(powerScaled);
+                    }
+                }
+            } else if (error < 0) {
+                if (xyz.equals("z")) {
+                    normalDrive(powerScaled, -powerScaled);
+                }
+                if (xyz.equals("y")) {
+                    if (opModeIsActive()) {
+                        robot.fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.fRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        robot.fLMotor.setPower(powerScaled);
+                        robot.fRMotor.setPower(powerScaled);
+                        robot.bLMotor.setPower(powerScaled);
+                        robot.bRMotor.setPower(powerScaled);
+                    }
+                }
+            }
+        } while (opModeIsActive() && ((error > .3) || (error < -0.3)) && (runtime.seconds() < timeoutS));
+        normalDrive(0, 0);
     }
 
     public void turnToPosition (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
-        //Write code to correct to a target position (NOT FINISHED)
         target*= -1;
         double originalAngle = readAngle(xyz);
 
@@ -250,9 +344,10 @@ public class StoneRed extends LinearOpMode {
         }
     }
 
-    public void encoderCorrectionDrive(double inches, String direction, double timeoutS, double topPower)
+    public void encoderCorrectionDrive(double inches, double timeoutS, double topPower)
     {
-
+        //TODO: FIGURE WTF IS UP W/MOTOR DIRECTIONS/HEADINGS
+        inches *= -1;
         int TargetFL = 0;
         int TargetFR = 0;
         int TargetBL = 0;
@@ -267,52 +362,14 @@ public class StoneRed extends LinearOpMode {
         double powerBR = 0;
 
 
-        String heading = direction;
+        //String heading = direction;
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
-            if(heading == "b")
-            {
-                TargetFL = robot.fLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-                TargetFR = robot.fRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-                TargetBL = robot.bLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-                TargetBR = robot.bRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-
-            }
-
-            else if(heading == "f")
-            {
-                TargetFL = robot.fLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetFR = robot.fRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetBL = robot.bLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetBR = robot.bRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-
-
-            }
-
-            else if(heading == "r")
-            {
-                TargetFL = robot.fLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-                TargetFR = robot.fRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetBL = robot.bLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetBR = robot.bRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH); //weird should be +
-
-
-            }
-
-            else if(heading == "l")
-            {
-                TargetFL = robot.fLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetFR = robot.fRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-                TargetBL = robot.bLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH); // weird should be +
-                TargetBR = robot.bRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-
-            }
-
-            else
-            {
-                telemetry.addData("not a valid direction", heading );
-            }
+            TargetFL = robot.fLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+            TargetFR = robot.fRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+            TargetBL = robot.bLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
+            TargetBR = robot.bRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
 
 
 
@@ -333,10 +390,6 @@ public class StoneRed extends LinearOpMode {
 
             // reset the timeout time and start motion.
             runtime.reset();
-            /*robot.fLMotor.setPower(Speed);
-            robot.fRMotor.setPower(Speed);
-            robot.bRMotor.setPower(Speed);
-            robot.bLMotor.setPower(Speed);*/
 
 
             // keep looping while we are still active, and there is time left, and both motors are running.
@@ -345,6 +398,7 @@ public class StoneRed extends LinearOpMode {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            //CORRECTS POWER BASED ON DISTANCE FROM TARGET TO PREVENT OVERSHOOT AND MOTOR INCONSISTENCY
             while (opModeIsActive() &&
                     (runtime.seconds() < timeoutS) && ((robot.fLMotor.isBusy() && robot.fRMotor.isBusy()) && robot.bLMotor.isBusy() && robot.bRMotor.isBusy()))
             {
@@ -367,13 +421,6 @@ public class StoneRed extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d :%7d :%7d", robot.fLMotor.getCurrentPosition(), robot.fRMotor.getCurrentPosition(), robot.bLMotor.getCurrentPosition(), robot.bRMotor.getCurrentPosition());
                 //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
                 telemetry.update();
-                //Display it for the driver.
-//                telemetry.addData("Remaining Dist",  "Running to %7d :%7d :%7d :%7d", errorFL,  errorFR, errorBL, errorBR);
-//                telemetry.addData("Current Pos",  "Running to " + robot.fLMotor.getCurrentPosition() + robot.fRMotor.getCurrentPosition() + robot.bLMotor.getCurrentPosition() + robot.bRMotor.getCurrentPosition());
-//                telemetry.addData("Target",  "Running to " + TargetFL + TargetFR + TargetBL +TargetBR);
-//                telemetry.addData("Power",  "Running at %7d :%7d :%7d :%7d", powerFL, powerFR, powerBL, powerBR);
-                //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
-                //telemetry.update();
             }
 
             // Stop all motion;
@@ -382,7 +429,11 @@ public class StoneRed extends LinearOpMode {
             robot.fRMotor.setPower(0);
             robot.bRMotor.setPower(0);
 
-            // Turn off RUN_TO_POSITION
+            // Turn off RUN_TO_POSITION and STOP_AND_RESET_ENCODER
+            robot.bRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.bLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.fRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.fLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.fRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -392,7 +443,7 @@ public class StoneRed extends LinearOpMode {
     }
     public void encoderDrive(double inches, String direction, double timeoutS, double Speed)
     {
-
+        //TODO: FIGURE WTF IS UP W/MOTOR DIRECTIONS/HEADINGS
         int TargetFL = 0;
         int TargetFR = 0;
         int TargetBL = 0;
@@ -419,25 +470,6 @@ public class StoneRed extends LinearOpMode {
                 TargetBL = robot.bLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
                 TargetBR = robot.bRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
 
-
-            }
-
-            else if(heading == "r")
-            {
-                TargetFL = robot.fLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-                TargetFR = robot.fRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetBL = robot.bLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetBR = robot.bRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH); //weird should be +
-
-
-            }
-
-            else if(heading == "l")
-            {
-                TargetFL = robot.fLMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
-                TargetFR = robot.fRMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH);
-                TargetBL = robot.bLMotor.getCurrentPosition() + (int)( inches* COUNTS_PER_INCH); // weird should be +
-                TargetBR = robot.bRMotor.getCurrentPosition() - (int)( inches* COUNTS_PER_INCH);
 
             }
 

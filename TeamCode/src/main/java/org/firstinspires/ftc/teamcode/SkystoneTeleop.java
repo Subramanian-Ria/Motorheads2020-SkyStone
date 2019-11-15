@@ -11,12 +11,15 @@ public class SkystoneTeleop extends OpMode {
 
     SkyStoneHardware robot = new SkyStoneHardware();
 
-    private float drive = .8f;
-    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    static final double     COUNTS_PER_MOTOR_REV = 1120 ;    // Currently: Andymark Neverest 40
+    static final double     COUNTS_PER_REV_ARM = 1440;
+    static final double     COUNTS_PER_INCH_ARM = COUNTS_PER_REV_ARM/4;
+    static final double     DRIVE_GEAR_REDUCTION = 1;     // This is < 1.0 if geared UP //On OUR CENTER MOTOR THE GEAR REDUCTION IS .5
+    static final double     WHEEL_DIAMETER_INCHES = 4;     // For figuring circumference
+    static final double     COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
+    double susanPower = .45;
+    double liftPower = .4;
 
     @Override
     public void init() {
@@ -28,14 +31,7 @@ public class SkystoneTeleop extends OpMode {
     @Override
     public void loop()
     {
-        if(Math.abs(gamepad1.right_stick_x) > .1)
-        {
-            robot.fLMotor.setPower(gamepad1.right_stick_x);
-            robot.fRMotor.setPower(gamepad1.right_stick_x);
-            robot.bLMotor.setPower(gamepad1.right_stick_x);
-            robot.bRMotor.setPower(gamepad1.right_stick_x);
-        }
-        else if(Math.abs(gamepad1.left_stick_y) > .1)
+        if(Math.abs(gamepad1.left_stick_y) > .1)
         {
             if(gamepad1.left_bumper && gamepad1.left_stick_y > 0)
             {
@@ -58,6 +54,13 @@ public class SkystoneTeleop extends OpMode {
                 robot.bRMotor.setPower(gamepad1.left_stick_y);
             }
         }
+        else if(Math.abs(gamepad1.right_stick_x) > .1)
+        {
+            robot.fLMotor.setPower(-gamepad1.right_stick_x);
+            robot.fRMotor.setPower(gamepad1.right_stick_x);
+            robot.bLMotor.setPower(-gamepad1.right_stick_x);
+            robot.bRMotor.setPower(gamepad1.right_stick_x);
+        }
         else
         {
             robot.fLMotor.setPower(0);
@@ -65,35 +68,73 @@ public class SkystoneTeleop extends OpMode {
             robot.bLMotor.setPower(0);
             robot.bRMotor.setPower(0);
         }
-        if(gamepad1.x && robot.susan.getCurrentPosition() < (2*COUNTS_PER_MOTOR_REV))
-        //TODO: see below
+        //TODO: mak
+        if(gamepad1.dpad_up && robot.armExt.getCurrentPosition() < 20)
         {
-            if(robot.susan.getPower() != .45)
-            {
-                double inc = (.45 - robot.susan.getPower())/200;
-                for(int i = 0; i < 200; i++)
-                {
-                    robot.susan.setPower(robot.susan.getPower() + inc);
-                }
-            }
-            //robot.susan.setPower(.45);
-            //robot.servo2.setPosition(0.5);
+            robot.armLift.setPower(liftPower);
         }
-        else if(gamepad1.y && robot.susan.getCurrentPosition() > (-2*COUNTS_PER_MOTOR_REV))
-        //TODO: have it rotate in the opposite direction to reverse encoder count
+        else if(gamepad1.dpad_down)
         {
-            if(robot.susan.getPower() != -.45)
-            {
-                double inc = (-.45 - robot.susan.getPower())/200;
-                for(int i = 0; i < 200; i++)
-                {
-                    robot.susan.setPower(robot.susan.getPower() + inc);
-                }
-            }
-            //robot.susan.setPower(-.45);
-            // robot.servo2.setPosition(1);
+            robot.armLift.setPower(-liftPower);
         }
         else
+        {
+            robot.armLift.setPower(0);
+        }
+        if(gamepad1.left_trigger >= .5)
+        {
+            robot.armExt.setPower(.5);
+        }
+        else if(gamepad1.right_trigger >= .5)
+        {
+            robot.armExt.setPower(-.5);
+        }
+        else
+        {
+            robot.armExt.setPower(0);
+        }
+        if(gamepad1.x && robot.susan.getCurrentPosition() < (2*COUNTS_PER_REV_ARM))
+        //TODO: see below
+        {
+            susan(0);
+        }
+        else if(gamepad1.y && robot.susan.getCurrentPosition() > (-2*COUNTS_PER_REV_ARM))
+        //TODO: have it rotate in the opposite direction to reverse encoder count
+        {
+            susan(1);
+        }
+        else
+        {
+            susan(2);
+        }
+    }
+
+    public void susan(int dir)
+    {
+        //accelerates susan rotation
+        if(dir == 0)
+        {
+            if(robot.susan.getPower() != susanPower)
+            {
+                double inc = (susanPower - robot.susan.getPower())/200;
+                for(int i = 0; i < 200; i++)
+                {
+                    robot.susan.setPower(robot.susan.getPower() + inc);
+                }
+            }
+        }
+        else if (dir == 1)
+        {
+            if(robot.susan.getPower() != -susanPower)
+            {
+                double inc = (-susanPower - robot.susan.getPower())/200;
+                for(int i = 0; i < 200; i++)
+                {
+                    robot.susan.setPower(robot.susan.getPower() + inc);
+                }
+            }
+        }
+        else if (dir == 2)
         {
             if(robot.susan.getPower() != 0)
             {
@@ -104,5 +145,10 @@ public class SkystoneTeleop extends OpMode {
                 }
             }
         }
+        else
+        {
+            telemetry.addData("not a valid direction", dir );
+        }
     }
+
 }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.motors.RevRoboticsCoreHexMotor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class SkyStoneHardware
@@ -11,7 +12,7 @@ public class SkyStoneHardware
     public DcMotor fRMotor;
     public DcMotor bLMotor;
     public DcMotor bRMotor;
-    //public RevRoboticsCoreHexMotor armLift;
+    public DcMotor armLift;
     public DcMotor susan;
     public DcMotor armExt;
     //public DistanceSensor distSen;
@@ -43,7 +44,7 @@ public class SkyStoneHardware
         bLMotor = hwMap.get(DcMotor.class, "bLMotor");
         susan = hwMap.get(DcMotor.class, "susan");
         armExt = hwMap.get(DcMotor.class, "armExt");
-        //armLift = hwMap.get(RevRoboticsCoreHexMotor.class, "armLift");
+        armLift = hwMap.get(DcMotor.class, "armLift");
         //distSen = hwMap.get(DistanceSensor.class, "distSen");
         //sensorColor = hwMap.get(ColorSensor.class, "sensorColor");
         //servo1 = hwMap.get(Servo.class, "servo1");
@@ -61,16 +62,22 @@ public class SkyStoneHardware
         bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        armLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         fLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        armLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         //flipped these 4
+        //TODO: CHECK
         fLMotor.setDirection(DcMotor.Direction.FORWARD);
         fRMotor.setDirection(DcMotor.Direction.REVERSE);
         bLMotor.setDirection(DcMotor.Direction.FORWARD);
         bRMotor.setDirection(DcMotor.Direction.REVERSE);
 
+        armLift.setDirection(DcMotor.Direction.FORWARD);
     }
 }
