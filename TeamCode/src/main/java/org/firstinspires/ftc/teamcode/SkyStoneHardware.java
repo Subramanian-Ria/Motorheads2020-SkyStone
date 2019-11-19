@@ -78,6 +78,11 @@ public class SkyStoneHardware
         bLMotor.setDirection(DcMotor.Direction.FORWARD);
         bRMotor.setDirection(DcMotor.Direction.REVERSE);
 
+        fLMotor.setPower(0);
+        fRMotor.setPower(0);
+        bLMotor.setPower(0);
+        bRMotor.setPower(0);
+
         armLift.setDirection(DcMotor.Direction.FORWARD);
     }
 }
