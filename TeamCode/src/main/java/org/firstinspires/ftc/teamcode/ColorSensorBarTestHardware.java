@@ -13,7 +13,7 @@ public class ColorSensorBarTestHardware
     public ColorSensor sen1;
 //    public ColorSensor sen2;
 //    public ColorSensor sen3;
-    //public DistanceSensor dist;
+    public DistanceSensor dist;
    // public Servo servo2;
 
     //declaring values for use with encoders
@@ -38,7 +38,7 @@ public class ColorSensorBarTestHardware
         sen1 = hwMap.get(ColorSensor.class, "sen1");
 //        sen2 = hwMap.get(ColorSensor.class, "sen2");
 //        sen3 = hwMap.get(ColorSensor.class, "sen3");
-//        dist = hwMap.get(DistanceSensor.class, "dist");
+        dist = hwMap.get(DistanceSensor.class, "dist");
         //servo2 = hwMap.get(Servo.class, "servo2");
 
     }

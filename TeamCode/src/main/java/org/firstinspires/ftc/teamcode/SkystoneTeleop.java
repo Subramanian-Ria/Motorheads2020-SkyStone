@@ -71,11 +71,11 @@ public class SkystoneTeleop extends OpMode {
         //TODO: mak
         if(gamepad1.dpad_up && robot.armExt.getCurrentPosition() < 20)
         {
-            robot.armLift.setPower(liftPower);
+            robot.armLift.setPower(-liftPower);
         }
         else if(gamepad1.dpad_down)
         {
-            robot.armLift.setPower(-liftPower);
+            robot.armLift.setPower(liftPower);
         }
         else
         {
@@ -106,6 +106,14 @@ public class SkystoneTeleop extends OpMode {
         else
         {
             susan(2);
+        }
+        if(gamepad1.a)
+        {
+            robot.servo1.setPosition(1);
+        }
+        else if(gamepad1.b)
+        {
+            robot.servo1.setPosition(0);
         }
     }
 

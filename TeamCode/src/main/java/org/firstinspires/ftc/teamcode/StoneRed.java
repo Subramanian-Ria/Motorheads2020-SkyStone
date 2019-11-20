@@ -277,7 +277,7 @@ public class StoneRed extends LinearOpMode {
         } while (opModeIsActive() && ((error > .3) || (error < -0.3)) && (runtime.seconds() < timeoutS));
         normalDrive(0, 0);
     }
-    
+
 
     public void turnDegreesLegacy(double target, double power, double timeoutS)
     {

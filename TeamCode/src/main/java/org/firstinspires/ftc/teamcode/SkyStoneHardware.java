@@ -4,7 +4,9 @@ import com.qualcomm.hardware.motors.RevRoboticsCoreHexMotor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class SkyStoneHardware
 {
@@ -15,10 +17,10 @@ public class SkyStoneHardware
     public DcMotor armLift;
     public DcMotor susan;
     public DcMotor armExt;
-    //public DistanceSensor distSen;
-    //public Servo servo1;
+    public DistanceSensor distSen;
+    public Servo servo1;
     //public Servo servo2;
-    //public ColorSensor sensorColor;
+    public ColorSensor sen1;
 
     //declaring values for use with encoders
     static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // AndyMark Motor Encoder
@@ -45,9 +47,9 @@ public class SkyStoneHardware
         susan = hwMap.get(DcMotor.class, "susan");
         armExt = hwMap.get(DcMotor.class, "armExt");
         armLift = hwMap.get(DcMotor.class, "armLift");
-        //distSen = hwMap.get(DistanceSensor.class, "distSen");
-        //sensorColor = hwMap.get(ColorSensor.class, "sensorColor");
-        //servo1 = hwMap.get(Servo.class, "servo1");
+        distSen = hwMap.get(DistanceSensor.class, "distSen");
+        sen1 = hwMap.get(ColorSensor.class, "sen1");
+        servo1 = hwMap.get(Servo.class, "servo1");
         //servo2 = hwMap.get(Servo.class, "servo2");
 
         fLMotor.setPower(0);

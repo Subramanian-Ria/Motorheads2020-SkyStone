@@ -30,6 +30,15 @@ public class ColorSensorBarTest extends OpMode {
         telemetry.addData("sen1r", robot.sen1.red());
         telemetry.addData("sen1g", robot.sen1.green());
         telemetry.addData("sen1b", robot.sen1.blue());
+        if (robot.sen1.red() > robot.sen1.blue() + 15 && robot.sen1.green() > robot.sen1.blue() + 15)
+        {
+//            if(robot.sen1.green() > 200 && robot.sen1.blue() > )
+            telemetry.addData("Left Block Color", "Yellow");
+        }
+        else
+        {
+            telemetry.addData("Left Block Color", "Floor");
+        }
 //        telemetry.addData("sen2", robot.sen2.alpha());
 //        telemetry.addData("sen3", robot.sen3.alpha());
 //        telemetry.addData("dist", robot.dist.getDistance(DistanceUnit.INCH));//if the distance is < .5in then the stone is too close despite being skystone
