@@ -10,7 +10,7 @@ public class ColorSensorBarTestHardware
 
     //public DistanceSensor distSen;
 //    public DcMotor susanTest;
-    public ColorSensor sen1;
+    public ColorSensor color1;
 //    public ColorSensor sen2;
 //    public ColorSensor sen3;
     public DistanceSensor dist;
@@ -35,10 +35,10 @@ public class ColorSensorBarTestHardware
 
         // Define Motors
         //susanTest = hwMap.get(DcMotor.class, "servo1");
-        sen1 = hwMap.get(ColorSensor.class, "sen1");
+        color1 = hwMap.get(ColorSensor.class, "color1");
 //        sen2 = hwMap.get(ColorSensor.class, "sen2");
 //        sen3 = hwMap.get(ColorSensor.class, "sen3");
-        dist = hwMap.get(DistanceSensor.class, "dist");
+        dist = hwMap.get(DistanceSensor.class, "distSen");
         //servo2 = hwMap.get(Servo.class, "servo2");
 
     }
