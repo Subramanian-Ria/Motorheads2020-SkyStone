@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 @Autonomous(name="TestDriving", group="Skystone")
-public class TestDriving extends LinearOpMode {
+public class WheelTest extends LinearOpMode {
 
     /* Declare OpMode members. */
     SkyStoneHardware robot = new SkyStoneHardware();
@@ -87,8 +86,15 @@ public class TestDriving extends LinearOpMode {
         waitForStart();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        turnToPosition(90, "z", .5, 5, false);
-        encoderDrive(10, "f", 5,1);
+        motorTest(robot.fLMotor);
+
+        motorTest(robot.fRMotor);
+
+        motorTest(robot.bLMotor);
+
+        motorTest(robot.bRMotor);
+        //turnToPosition(90, "z", 1, 5, false);
+       // encoderDrive(10, "f", 5,1);
 //        sleep(100);
 //        turnDegrees(-90, "z", 1, 5, false);
 //        sleep(100);
@@ -108,6 +114,13 @@ public class TestDriving extends LinearOpMode {
 //        sleep(100);
         //tf.start(); //moved to start of program
 
+    }
+
+    public void motorTest(DcMotor motor)
+    {
+        motor.setPower(1);
+        sleep(1000);
+        motor.setPower(0);
     }
 
     public static double counts(double inches)

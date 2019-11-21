@@ -552,14 +552,14 @@ public class StoneRed extends LinearOpMode {
         robot.fRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.fLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.armExt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.susan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //robot.susan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //
         robot.bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.fRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.armExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.susan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.susan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
     public void encoderDrive(double inches, String direction, double timeoutS, double Speed)
     {

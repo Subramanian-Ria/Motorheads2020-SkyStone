@@ -31,132 +31,112 @@ public class SkystoneTeleop extends OpMode {
     @Override
     public void loop()
     {
-        if(Math.abs(gamepad1.left_stick_y) > .1)
+        mecanumMove();
+
+        //arm lift
+        if(gamepad1.dpad_up)
         {
-            if(gamepad1.left_bumper && gamepad1.left_stick_y > 0)
-            {
-                robot.fLMotor.setPower(.15);
-                robot.fRMotor.setPower(.15);
-                robot.bLMotor.setPower(.15);
-                robot.bRMotor.setPower(.15);
-            }
-            else if(gamepad1.left_bumper && gamepad1.left_stick_y < 0)
-            {
-                robot.fLMotor.setPower(-.15);
-                robot.fRMotor.setPower(-.15);
-                robot.bLMotor.setPower(-.15);
-                robot.bRMotor.setPower(-.15);
-            }
-            else {
-                robot.fLMotor.setPower(gamepad1.left_stick_y);
-                robot.fRMotor.setPower(gamepad1.left_stick_y);
-                robot.bLMotor.setPower(gamepad1.left_stick_y);
-                robot.bRMotor.setPower(gamepad1.left_stick_y);
-            }
-        }
-        else if(Math.abs(gamepad1.right_stick_x) > .1)
-        {
-            robot.fLMotor.setPower(-gamepad1.right_stick_x);
-            robot.fRMotor.setPower(gamepad1.right_stick_x);
-            robot.bLMotor.setPower(-gamepad1.right_stick_x);
-            robot.bRMotor.setPower(gamepad1.right_stick_x);
-        }
-        else
-        {
-            robot.fLMotor.setPower(0);
-            robot.fRMotor.setPower(0);
-            robot.bLMotor.setPower(0);
-            robot.bRMotor.setPower(0);
-        }
-        //TODO: mak
-        if(gamepad1.dpad_up && robot.armExt.getCurrentPosition() < 20)
-        {
-            robot.armLift.setPower(-liftPower);
+            robot.armLift.setPower(liftPower);
         }
         else if(gamepad1.dpad_down)
         {
-            robot.armLift.setPower(liftPower);
+            robot.armLift.setPower(-liftPower);
         }
         else
         {
             robot.armLift.setPower(0);
         }
+
+        //arm extension
         if(gamepad1.left_trigger >= .5)
         {
-            robot.armExt.setPower(.5);
+            robot.armExt.setPower(-.5);
         }
         else if(gamepad1.right_trigger >= .5)
         {
-            robot.armExt.setPower(-.5);
+            robot.armExt.setPower(.5);
         }
         else
         {
             robot.armExt.setPower(0);
         }
-        if(gamepad1.x && robot.susan.getCurrentPosition() < (2*COUNTS_PER_REV_ARM))
-        //TODO: see below
-        {
-            susan(0);
-        }
-        else if(gamepad1.y && robot.susan.getCurrentPosition() > (-2*COUNTS_PER_REV_ARM))
-        //TODO: have it rotate in the opposite direction to reverse encoder count
-        {
-            susan(1);
-        }
-        else
-        {
-            susan(2);
-        }
+
+        //claw grab
         if(gamepad1.a)
         {
-            robot.servo1.setPosition(1);
+            robot.claw.setPosition(1);
         }
         else if(gamepad1.b)
         {
-            robot.servo1.setPosition(0);
+            robot.claw.setPosition(0);
+        }
+
+        //wrist movement
+        if(gamepad1.x)
+        {
+            robot.wrist.setPosition(robot.wrist.getPosition() + .1);
+        }
+        else if(gamepad1.y)
+        {
+            robot.wrist.setPosition(robot.wrist.getPosition() - .1);
         }
     }
 
-    public void susan(int dir)
-    {
-        //accelerates susan rotation
-        if(dir == 0)
-        {
-            if(robot.susan.getPower() != susanPower)
-            {
-                double inc = (susanPower - robot.susan.getPower())/200;
-                for(int i = 0; i < 200; i++)
-                {
-                    robot.susan.setPower(robot.susan.getPower() + inc);
-                }
-            }
-        }
-        else if (dir == 1)
-        {
-            if(robot.susan.getPower() != -susanPower)
-            {
-                double inc = (-susanPower - robot.susan.getPower())/200;
-                for(int i = 0; i < 200; i++)
-                {
-                    robot.susan.setPower(robot.susan.getPower() + inc);
-                }
-            }
-        }
-        else if (dir == 2)
-        {
-            if(robot.susan.getPower() != 0)
-            {
-                double inc = -(robot.susan.getPower()/200);
-                for(int i = 0; i < 200; i++)
-                {
-                    robot.susan.setPower(robot.susan.getPower() + inc);
-                }
-            }
-        }
-        else
-        {
-            telemetry.addData("not a valid direction", dir );
-        }
-    }
+//    public void susan(int dir)
+//    {
+//        //accelerates susan rotation
+//        if(dir == 0)
+//        {
+//            if(robot.susan.getPower() != susanPower)
+//            {
+//                double inc = (susanPower - robot.susan.getPower())/200;
+//                for(int i = 0; i < 200; i++)
+//                {
+//                    robot.susan.setPower(robot.susan.getPower() + inc);
+//                }
+//            }
+//        }
+//        else if (dir == 1)
+//        {
+//            if(robot.susan.getPower() != -susanPower)
+//            {
+//                double inc = (-susanPower - robot.susan.getPower())/200;
+//                for(int i = 0; i < 200; i++)
+//                {
+//                    robot.susan.setPower(robot.susan.getPower() + inc);
+//                }
+//            }
+//        }
+//        else if (dir == 2)
+//        {
+//            if(robot.susan.getPower() != 0)
+//            {
+//                double inc = -(robot.susan.getPower()/200);
+//                for(int i = 0; i < 200; i++)
+//                {
+//                    robot.susan.setPower(robot.susan.getPower() + inc);
+//                }
+//            }
+//        }
+//        else
+//        {
+//            telemetry.addData("not a valid direction", dir );
+//        }
+//    }
+    public void mecanumMove() {
+        //variables
+        double drive = .8f;
+        double r = Math.hypot(-gamepad1.left_stick_x, gamepad1.left_stick_y);
+        double robotAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) - Math.PI / 4;
+        double rightX = gamepad1.right_stick_x;
+        final double v1 = r * Math.cos(robotAngle) + rightX;
+        final double v2 = r * Math.sin(robotAngle) - rightX;
+        final double v3 = r * Math.sin(robotAngle) + rightX;
+        final double v4 = r * Math.cos(robotAngle) - rightX;
 
+        robot.fLMotor.setPower(-drive * v1);
+        robot.fRMotor.setPower(-drive * v2);
+        robot.bLMotor.setPower(-drive * v3);
+        robot.bRMotor.setPower(-drive * v4);
+    }
 }

@@ -15,12 +15,12 @@ public class SkyStoneHardware
     public DcMotor bLMotor;
     public DcMotor bRMotor;
     public DcMotor armLift;
-    public DcMotor susan;
+    //public DcMotor susan;
     public DcMotor armExt;
     public DistanceSensor distSen;
-    public Servo servo1;
-    //public Servo servo2;
-    public ColorSensor sen1;
+    public Servo claw;
+    public Servo wrist;
+    public ColorSensor color1;
 
     //declaring values for use with encoders
     static final double     COUNTS_PER_MOTOR_REV    = 1120 ;    // AndyMark Motor Encoder
@@ -44,13 +44,13 @@ public class SkyStoneHardware
         fRMotor = hwMap.get(DcMotor.class, "fRMotor");
         bRMotor = hwMap.get(DcMotor.class, "bRMotor");
         bLMotor = hwMap.get(DcMotor.class, "bLMotor");
-        susan = hwMap.get(DcMotor.class, "susan");
+        //susan = hwMap.get(DcMotor.class, "susan");
         armExt = hwMap.get(DcMotor.class, "armExt");
         armLift = hwMap.get(DcMotor.class, "armLift");
         distSen = hwMap.get(DistanceSensor.class, "distSen");
-        sen1 = hwMap.get(ColorSensor.class, "sen1");
-        servo1 = hwMap.get(Servo.class, "servo1");
-        //servo2 = hwMap.get(Servo.class, "servo2");
+        color1 = hwMap.get(ColorSensor.class, "color1");
+        claw = hwMap.get(Servo.class, "claw");
+        wrist = hwMap.get(Servo.class, "wrist");
 
         fLMotor.setPower(0);
         bLMotor.setPower(0);
