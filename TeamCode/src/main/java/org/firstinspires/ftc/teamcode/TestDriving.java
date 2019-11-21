@@ -134,7 +134,7 @@ public class TestDriving extends LinearOpMode {
 
 
     public void turnToPosition (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
-        //Write code to correct to a target position (NOT FINISHED)
+        stopAndReset();
         target*= -1;
         double originalAngle = readAngle(xyz);
 
@@ -191,7 +191,25 @@ public class TestDriving extends LinearOpMode {
             }
         } while (opModeIsActive() && ((error > .3) || (error < -0.3)) && (runtime.seconds() < timeoutS));
         normalDrive(0, 0);
+        stopAndReset();
 
+    }
+
+    public void stopAndReset()
+    {
+        robot.bRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.bLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.fRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.fLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.armExt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //robot.susan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //
+        robot.bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.fRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.armExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //robot.susan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public double pidMultiplierDriving(double error) {
