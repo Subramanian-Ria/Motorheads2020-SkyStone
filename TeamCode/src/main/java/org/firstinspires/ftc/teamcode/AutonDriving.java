@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -15,14 +16,36 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
-@Autonomous(name="ColorSensorChangeTest", group="Skystone")
-public class ColorSensorChangeTest extends LinearOpMode {
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
+import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
+
+@Autonomous(name="AutonDriving", group="Skystone")
+public class AutonDriving extends LinearOpMode {
 
     /* Declare OpMode members. */
     SkyStoneHardware robot = new SkyStoneHardware();
     private ElapsedTime runtime = new ElapsedTime();
     String xyz = "z";
-
+    //CONTAINS ALL METHODS AND VARIABlES TO BE EXTENDED BY OTHER AUTON CLASSES
     static final double     COUNTS_PER_MOTOR_REV = 1120;    // Currently: Andymark Neverest 40
     static final double     COUNTS_PER_REV_ARM = 1495; //torquenado
     static final double     PULLEY_DIAMETER = 1.3;
@@ -32,42 +55,48 @@ public class ColorSensorChangeTest extends LinearOpMode {
     static final double     COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * Math.PI);
 
-
-//    static final double COUNTS_PER_MOTOR_REV = 537; //216
-//    static final double DRIVE_GEAR_REDUCTION = 0.6666;     // This is < 1.0 if geared UP
-//    static final double WHEEL_DIAMETER_INCHES = 3.4;     // For figuring circumference
-//    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-//            (WHEEL_DIAMETER_INCHES * 3.1415);
-//    static final double DRIVE_SPEED = 1;
-//    static final double TURN_SPEED = 0.5;
     BNO055IMU imu;
+
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+    private static final boolean PHONE_IS_PORTRAIT = false  ;
+
+    private static final String VUFORIA_KEY =
+            "AYy6NYn/////AAABmTW3q+TyLUMbg/IXWlIG3BkMMq0okH0hLmwj3CxhPhvUlEZHaOAmESqfePJ57KC2g6UdWLN7OYvc8ihGAZSUJ2JPWAsHQGv6GUAj4BlrMCjHvqhY0w3tV/Azw2wlPmls4FcUCRTzidzVEDy+dtxqQ7U5ZtiQhjBZetAcnLsCYb58dgwZEjTx2+36jiqcFYvS+FlNJBpbwmnPUyEEb32YBBZj4ra5jB0v4IW4wYYRKTNijAQKxco33VYSCbH0at99SqhXECURA55dtmmJxYpFlT/sMmj0iblOqoG/auapQmmyEEXt/T8hv9StyirabxhbVVSe7fPsAueiXOWVm0kCPO+KN/TyWYB9Hg/mSfnNu9i9";
+
+    // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
+    // We will define some constants and conversions here
+    private static final float mmPerInch        = 25.4f;
+    // the height of the center of the target image above the floor
+
+    // Constant for Stone Target
+    private static final float stoneZ = 2.00f * mmPerInch;
+
+    // Constants for the center support targets
+
+    // Class Members
+    private OpenGLMatrix lastLocation = null;
+    private VuforiaLocalizer vuforia = null;
+
+    WebcamName webcamName = null;
+
+    private boolean targetVisible = false;
+    private float phoneXRotate    = 0;
+    private float phoneYRotate    = 0;
+    private float phoneZRotate    = 0;
 
     @Override
     public void runOpMode() {
-        /*
-         * Initialize the drive system variables.
-         * The init() method of the hardware class does all the work here
-         */
         robot.init(hardwareMap);
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        BNO055IMU.Parameters p = new BNO055IMU.Parameters();
+        p.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        p.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        p.calibrationDataFile = "BNO055IMUCalibration.json";
+        p.loggingEnabled = true;
+        p.loggingTag = "IMU";
+        p.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
+        imu.initialize(p);
 
-
-        //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        //init distance sensors
-        /*
-        Rev2mDistanceSensor sensorRangeR = hardwareMap.get(Rev2mDistanceSensor.class, "sensorRangeR");
-        Rev2mDistanceSensor sensorRangeL = hardwareMap.get(Rev2mDistanceSensor.class, "sensorRangeL");
-        sensorRangeL.initialize();
-        sensorRangeR.initialize();
-        */
         //side motors
         robot.fLMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.fRMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -82,39 +111,110 @@ public class ColorSensorChangeTest extends LinearOpMode {
         robot.bLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // Wait for the game to start (driver presses PLAY)
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+
+        parameters.cameraName = webcamName;
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Load the data sets for the trackable objects. These particular data
+        // sets are stored in the 'assets' part of our application.
+        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+
+        VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
+        stoneTarget.setName("Stone Target");
+
+        // For convenience, gather together all the trackable objects in one easily-iterable collection */
+        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(targetsSkyStone);
+
+        stoneTarget.setLocation(OpenGLMatrix
+                .translation(0, 0, stoneZ)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+
+        if (CAMERA_CHOICE == BACK) {
+            phoneYRotate = -90;
+        } else {
+            phoneYRotate = 90;
+        }
+
+        // Rotate the phone vertical about the X axis if it's in portrait mode
+        if (PHONE_IS_PORTRAIT) {
+            phoneXRotate = 90 ;
+        }
+
+        // Next, translate the camera lens to where it is on the robot.
+        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
+        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+
+        OpenGLMatrix robotFromCamera = OpenGLMatrix
+                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
+
+        /**  Let all the trackable listeners know where the phone is.  */
+        for (VuforiaTrackable trackable : allTrackables) {
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
+        }
+
 
         waitForStart();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        int[] colorChange = calibrateSensor();
-//        turnToPosition(90, "z", .5, 5, false);
-//        sleep(500);
-//        encoderDrive(10, "f", 5,1);
-        //robot.armLift.setPower(.5);
-        //sleep(100);
-        //robot.armLift.setPower(0);
-        //armLift(3, .5, 5);
-        //armExtend(32, .75, 15);
-////        sleep(100);
-//        turnDegrees(-90, "z", 1, 5, false);
-//        sleep(100);
-//        turnDegrees(45, "z", 1, 5, false);
-//        sleep(100);
-//        turnDegrees(-45, "z", 1, 5, false);
-//        sleep(100);
-//        turnDegrees(0, "z", 1, 5, false);
-//        sleep(1500);
-//        encoderDrive(19.75, "f", 10, .8);
-//        sleep(100);
-//        encoderDrive(10, "r", 10, 1);
-//        sleep(100);
-//        encoderDrive(10, "b", 10, 1);
-//        sleep(100);
-//        encoderDrive(10, "l", 10, 1);
-//        sleep(100);
-        //tf.start(); //moved to start of program
 
+    }
+
+    public void vuforia(VuforiaTrackables targetsSkyStone, List<VuforiaTrackable> allTrackables)
+    {
+        //TODO: RETURN POSITION STRING
+        targetsSkyStone.activate();
+        while (!isStopRequested()) {
+
+            // check all the trackable targets to see which one (if any) is visible.
+            targetVisible = false;
+            for (VuforiaTrackable trackable : allTrackables) {
+                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                    telemetry.addData("Visible Target", trackable.getName());
+                    targetVisible = true;
+
+                    // getUpdatedRobotLocation() will return null if no new information is available since
+                    // the last time that call was made, or if the trackable is not currently visible.
+                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                    if (robotLocationTransform != null) {
+                        lastLocation = robotLocationTransform;
+                    }
+                    break;
+                }
+            }
+
+            // Provide feedback as to where the robot is located (if we know).
+            if (targetVisible) {
+                // express position (translation) of robot in inches.
+                VectorF translation = lastLocation.getTranslation();
+                telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+                // express the rotation of the robot in degrees.
+                Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+            }
+            else {
+                telemetry.addData("Visible Target", "none");
+            }
+            telemetry.update();
+        }
+
+        // Disable Tracking when we are done;
+        targetsSkyStone.deactivate();
     }
 
     public static double counts(double inches)
@@ -138,66 +238,6 @@ public class ColorSensorChangeTest extends LinearOpMode {
             robot.bRMotor.setPower(rpower);
         }
     }
-
-    public int[] calibrateSensor()
-    {
-        int[] change = new int[4];
-        if(opModeIsActive())
-        {
-            runtime.reset();
-            int maxRed = 0;
-            int minRed = 1000;
-            int maxGreen = 0;
-            int minGreen = 1000;
-            int maxBlue = 0;
-            int minBlue = 1000;
-            int maxAlpha = 0;
-            int minAlpha = 1000;
-            while(runtime.seconds() <= 2)
-            {
-                if(robot.color1.red() < minRed)
-                {
-                    minRed = robot.color1.red();
-                }
-                if(robot.color1.green() < minGreen)
-                {
-                    minGreen = robot.color1.green();
-                }
-                if(robot.color1.blue() < minBlue)
-                {
-                    minBlue = robot.color1.blue();
-                }
-                if(robot.color1.alpha() < minAlpha)
-                {
-                    minAlpha = robot.color1.alpha();
-                }
-
-                if(robot.color1.red() > maxRed)
-                {
-                    maxRed = robot.color1.red();
-                }
-                if(robot.color1.green() > maxGreen)
-                {
-                    maxGreen = robot.color1.green();
-                }
-                if(robot.color1.blue() > maxBlue)
-                {
-                    maxBlue = robot.color1.blue();
-                }
-                if(robot.color1.alpha() > maxAlpha)
-                {
-                    maxAlpha = robot.color1.alpha();
-                }
-            }
-            change[0] = maxRed - minRed;
-            change[1] = maxGreen - minGreen;
-            change[2] = maxBlue - minBlue;
-            change[3] = maxAlpha - minAlpha;
-            return change;
-        }
-        return change;
-    }
-
 
 
     public void turnToPosition (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
@@ -309,6 +349,7 @@ public class ColorSensorChangeTest extends LinearOpMode {
 
     public void encoderDrive(double inches, String direction, double timeoutS, double topPower)
     {
+        stopAndReset();
         int TargetFL = 0;
         int TargetFR = 0;
         int TargetBL = 0;
@@ -423,13 +464,6 @@ public class ColorSensorChangeTest extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d :%7d :%7d", robot.fLMotor.getCurrentPosition(), robot.fRMotor.getCurrentPosition(), robot.bLMotor.getCurrentPosition(), robot.bRMotor.getCurrentPosition());
                 //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
                 telemetry.update();
-                //Display it for the driver.
-//                telemetry.addData("Remaining Dist",  "Running to %7d :%7d :%7d :%7d", errorFL,  errorFR, errorBL, errorBR);
-//                telemetry.addData("Current Pos",  "Running to " + robot.fLMotor.getCurrentPosition() + robot.fRMotor.getCurrentPosition() + robot.bLMotor.getCurrentPosition() + robot.bRMotor.getCurrentPosition());
-//                telemetry.addData("Target",  "Running to " + TargetFL + TargetFR + TargetBL +TargetBR);
-//                telemetry.addData("Power",  "Running at %7d :%7d :%7d :%7d", powerFL, powerFR, powerBL, powerBR);
-                //telemetry.addData("speeds",  "Running to %7f :%7f :%7f :%7f", speedfL,  speedfR, speedfL, speedbR);
-                //telemetry.update();
             }
 
             // Stop all motion;
@@ -445,11 +479,11 @@ public class ColorSensorChangeTest extends LinearOpMode {
             robot.fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //  sleep(250);   // optional pause after each move
         }
+        stopAndReset();
     }
     public void armExtend(double inches, double topPower, double timeoutS)
     {
         stopAndReset();
-        //TODO: CHECK PULLEY CIRCUMFERENCE
         int target = robot.armExt.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH_ARM);
 
         robot.armExt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -473,7 +507,6 @@ public class ColorSensorChangeTest extends LinearOpMode {
     public void armLift(double inches, double topPower, double timeoutS)
     {
         stopAndReset();
-        //TODO: CHECK PULLEY CIRCUMFERENCE
         int target = robot.armLift.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH_ARM);
 
         robot.armLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
