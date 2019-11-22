@@ -47,6 +47,7 @@ public class SkyStoneHardware
         //susan = hwMap.get(DcMotor.class, "susan");
         armExt = hwMap.get(DcMotor.class, "armExt");
         armLift = hwMap.get(DcMotor.class, "armLift");
+        //
         distSen = hwMap.get(DistanceSensor.class, "distSen");
         color1 = hwMap.get(ColorSensor.class, "color1");
         claw = hwMap.get(Servo.class, "claw");
@@ -57,6 +58,9 @@ public class SkyStoneHardware
         fRMotor.setPower(0);
         bRMotor.setPower(0);
 
+        armExt.setPower(0);
+        armLift.setPower(0);
+
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
         fLMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -65,6 +69,8 @@ public class SkyStoneHardware
         bRMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         armLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armExt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         fLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bLMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -72,19 +78,15 @@ public class SkyStoneHardware
         bRMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         armLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armExt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //flipped these 4
-        //TODO: CHECK
         fLMotor.setDirection(DcMotor.Direction.REVERSE);
         fRMotor.setDirection(DcMotor.Direction.FORWARD);
         bLMotor.setDirection(DcMotor.Direction.REVERSE);
         bRMotor.setDirection(DcMotor.Direction.FORWARD);
 
-        fLMotor.setPower(0);
-        fRMotor.setPower(0);
-        bLMotor.setPower(0);
-        bRMotor.setPower(0);
-
         armLift.setDirection(DcMotor.Direction.FORWARD);
+        armExt.setDirection(DcMotor.Direction.FORWARD);
     }
 }

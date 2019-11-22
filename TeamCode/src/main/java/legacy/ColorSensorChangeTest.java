@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package legacy;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,9 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.teamcode.SkyStoneHardware;
 
-@Autonomous(name="TestDriving", group="Skystone")
-public class TestDriving extends LinearOpMode {
+@Autonomous(name="ColorSensorChangeTest", group="Skystone")
+public class ColorSensorChangeTest extends LinearOpMode {
 
     /* Declare OpMode members. */
     SkyStoneHardware robot = new SkyStoneHardware();
@@ -88,14 +88,15 @@ public class TestDriving extends LinearOpMode {
         waitForStart();
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
+        int[] colorChange = calibrateSensor();
 //        turnToPosition(90, "z", .5, 5, false);
 //        sleep(500);
 //        encoderDrive(10, "f", 5,1);
         //robot.armLift.setPower(.5);
         //sleep(100);
         //robot.armLift.setPower(0);
-        armLift(3, .5, 5);
-        armExtend(32, .75, 15);
+        //armLift(3, .5, 5);
+        //armExtend(32, .75, 15);
 ////        sleep(100);
 //        turnDegrees(-90, "z", 1, 5, false);
 //        sleep(100);
@@ -138,6 +139,66 @@ public class TestDriving extends LinearOpMode {
             robot.bRMotor.setPower(rpower);
         }
     }
+
+    public int[] calibrateSensor()
+    {
+        int[] change = new int[4];
+        if(opModeIsActive())
+        {
+            runtime.reset();
+            int maxRed = 0;
+            int minRed = 1000;
+            int maxGreen = 0;
+            int minGreen = 1000;
+            int maxBlue = 0;
+            int minBlue = 1000;
+            int maxAlpha = 0;
+            int minAlpha = 1000;
+            while(runtime.seconds() <= 2)
+            {
+                if(robot.color1.red() < minRed)
+                {
+                    minRed = robot.color1.red();
+                }
+                if(robot.color1.green() < minGreen)
+                {
+                    minGreen = robot.color1.green();
+                }
+                if(robot.color1.blue() < minBlue)
+                {
+                    minBlue = robot.color1.blue();
+                }
+                if(robot.color1.alpha() < minAlpha)
+                {
+                    minAlpha = robot.color1.alpha();
+                }
+
+                if(robot.color1.red() > maxRed)
+                {
+                    maxRed = robot.color1.red();
+                }
+                if(robot.color1.green() > maxGreen)
+                {
+                    maxGreen = robot.color1.green();
+                }
+                if(robot.color1.blue() > maxBlue)
+                {
+                    maxBlue = robot.color1.blue();
+                }
+                if(robot.color1.alpha() > maxAlpha)
+                {
+                    maxAlpha = robot.color1.alpha();
+                }
+            }
+            change[0] = maxRed - minRed;
+            change[1] = maxGreen - minGreen;
+            change[2] = maxBlue - minBlue;
+            change[3] = maxAlpha - minAlpha;
+            return change;
+        }
+        return change;
+    }
+
 
 
     public void turnToPosition (double target, String xyz, double topPower, double timeoutS, boolean isCorrection) {
